@@ -309,7 +309,7 @@ export default function HomePage() {
                   statusLabel={status.label}
                   statusTone={status.tone}
                   accent={meta.accent}
-                  icon={<Icon />}
+                  icon={<Icon className="h-5 w-5" />}
                 />
               </li>
             );
@@ -318,11 +318,15 @@ export default function HomePage() {
       </section>
 
       {/* DESIGN PRINCIPLES */}
-      <section aria-labelledby="principles" className="spectral-card p-6">
+      <section
+        aria-labelledby="principles"
+        className="spectral-card p-6"
+        style={{ "--card-accent": "var(--opus-chartreuse)" } as React.CSSProperties}
+      >
         <h2 id="principles" className="text-lg font-semibold text-ice">
           Design principles
         </h2>
-        <ul className="mt-3 grid gap-2 text-sm text-muted sm:grid-cols-2">
+        <ul className="mt-3 grid gap-2 text-sm text-steel sm:grid-cols-2">
           <li>Correctness before features.</li>
           <li>Security and traceability by design.</li>
           <li>No simulated functionality presented as real.</li>
