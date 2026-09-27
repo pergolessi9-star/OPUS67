@@ -24,12 +24,12 @@ function Section({
   return (
     <section
       aria-labelledby={id}
-      className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
+      className="spectral-card p-6"
     >
-      <h2 id={id} className="text-lg font-semibold text-white">
+      <h2 id={id} className="text-lg font-semibold text-ice">
         {title}
       </h2>
-      <div className="mt-3 space-y-3 text-sm text-slate-300">{children}</div>
+      <div className="mt-3 space-y-3 text-sm text-steel">{children}</div>
     </section>
   );
 }
@@ -40,7 +40,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-accent hover:underline"
+      className="text-ion hover:underline"
     >
       {children}
     </a>
@@ -51,13 +51,13 @@ export default function AiLegalNoticePage() {
   return (
     <div className="space-y-8">
       <header className="pt-2">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-ion">
           Legal
         </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">
+        <h1 className="mt-2 text-3xl font-semibold text-ice">
           Artificial Intelligence Legal Notice
         </h1>
-        <p className="mt-3 max-w-3xl text-sm text-slate-400">
+        <p className="mt-3 max-w-3xl text-sm text-muted">
           {LEGAL_FRAMEWORK_STATEMENT}
         </p>
       </header>
@@ -68,7 +68,7 @@ export default function AiLegalNoticePage() {
           transparency, traceability, human oversight and risk management are
           treated as design requirements, not as afterthoughts. The verifiable
           state of every control is published on the{" "}
-          <Link href="/governance" className="text-accent hover:underline">
+          <Link href="/governance" className="text-ion hover:underline">
             Governance
           </Link>{" "}
           page (IMPLEMENTED / PARTIAL / PLANNED / REQUIRES ASSESSMENT — never an
@@ -122,7 +122,7 @@ export default function AiLegalNoticePage() {
           The active AI provider is the local no-op driver (generation disabled
           by design), so no autonomous AI generation takes place in the current
           MVP. Control state: PARTIAL — see{" "}
-          <Link href="/governance#human-oversight" className="text-accent hover:underline">
+          <Link href="/governance#human-oversight" className="text-ion hover:underline">
             Governance
           </Link>
           .
@@ -135,7 +135,7 @@ export default function AiLegalNoticePage() {
           honestly: nothing is simulated and no metric is invented. The active
           drivers are reported by <code className="font-mono text-xs">/api/health</code>{" "}
           and on the{" "}
-          <Link href="/settings" className="text-accent hover:underline">
+          <Link href="/settings" className="text-ion hover:underline">
             Settings
           </Link>{" "}
           page.
@@ -170,7 +170,7 @@ export default function AiLegalNoticePage() {
           The default storage driver is process-local memory (non-persistent by
           design); an external PostgreSQL is an opt-in upgrade. Data-governance
           controls are documented in the regulatory traceability matrix on the{" "}
-          <Link href="/governance#data-governance" className="text-accent hover:underline">
+          <Link href="/governance#data-governance" className="text-ion hover:underline">
             Governance
           </Link>{" "}
           page. Control state: PLANNED.
@@ -192,7 +192,7 @@ export default function AiLegalNoticePage() {
           OPUS67 includes an Evidence module with SHA-256 fingerprinting so
           that artefacts can be registered and verified. Control state:
           IMPLEMENTED — see{" "}
-          <Link href="/governance#evidence" className="text-accent hover:underline">
+          <Link href="/governance#evidence" className="text-ion hover:underline">
             Governance
           </Link>
           .
@@ -233,7 +233,7 @@ export default function AiLegalNoticePage() {
         </p>
       </Section>
 
-      <footer className="border-t border-ink-700 pt-6 text-xs text-slate-500">
+      <footer className="border-t border-line pt-6 text-xs text-muted">
         <p>
           {AUTHOR.heading}: {AUTHOR.name}
         </p>
