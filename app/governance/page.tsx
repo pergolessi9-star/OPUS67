@@ -6,18 +6,19 @@ import {
   REGULATORY_DISCLAIMER,
   type ControlStatus,
 } from "@/config/governance";
-import { Badge } from "@/components/ui/badge";
+import { CommandHeader } from "@/components/opus/command-header";
+import { HumanOversightGate } from "@/components/opus/human-oversight-gate";
+import { StatusBadge, type StatusTone } from "@/components/opus/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
 
 export const metadata: Metadata = { title: "Governance" };
 
-const controlTone: Record<ControlStatus, "green" | "amber" | "slate" | "blue"> = {
-  IMPLEMENTED: "green",
-  PARTIAL: "amber",
-  PLANNED: "slate",
-  NOT_APPLICABLE: "slate",
-  REQUIRES_ASSESSMENT: "blue",
+const controlTone: Record<ControlStatus, StatusTone> = {
+  IMPLEMENTED: "active",
+  PARTIAL: "review",
+  PLANNED: "neutral",
+  NOT_APPLICABLE: "neutral",
+  REQUIRES_ASSESSMENT: "info",
 };
 
 const governanceAreas = [
@@ -53,26 +54,34 @@ export default function GovernancePage() {
 
   return (
     <div>
-      <PageHeader
-        title={mod.name}
+      <CommandHeader
+        eyebrow="OPUS67 // GOVERNANCE"
+        title="Governance Control Matrix"
         description={mod.description}
-        status={mod.status}
-        statusNote={mod.statusNote}
+        status="Operational"
+        statusTone="active"
       />
 
-      <div className="mb-8 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
-        <p className="text-sm text-amber-200">
+      <div className="spectral-card mb-8 p-4" style={{ "--card-accent": "var(--opus-amber)" } as React.CSSProperties}>
+        <p className="text-sm text-solar">
           OPUS67 provides governance support and compliance-oriented controls.
           It does <strong>not</strong> claim EU AI Act compliance by itself;
           conformity requires organisational measures outside this software.
         </p>
       </div>
 
+      <div className="mb-10">
+        <HumanOversightGate />
+      </div>
+
       <section aria-labelledby="control-states" className="mb-10">
-        <h2 id="control-states" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2
+          id="control-states"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+        >
           Regulatory controls — verifiable states
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted">
           States are IMPLEMENTED / PARTIAL / PLANNED / NOT APPLICABLE / REQUIRES ASSESSMENT.
           &quot;COMPLIANT&quot; is never used as an automatic state.
         </p>
@@ -81,56 +90,63 @@ export default function GovernancePage() {
             <li
               key={control.slug}
               id={control.slug}
-              className="scroll-mt-20 rounded-lg border border-ink-700 bg-ink-900/50 p-4"
+              className="spectral-card scroll-mt-20 p-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-white">{control.name}</h3>
-                <Badge tone={controlTone[control.status]}>
+                <h3 className="text-sm font-semibold text-ice">{control.name}</h3>
+                <StatusBadge tone={controlTone[control.status]}>
                   {control.status.replaceAll("_", " ")}
-                </Badge>
+                </StatusBadge>
               </div>
-              <p className="mt-2 text-xs text-slate-400">{control.summary}</p>
+              <p className="mt-2 text-xs text-muted">{control.summary}</p>
             </li>
           ))}
         </ul>
       </section>
 
       <section aria-labelledby="regulatory-matrix" className="mb-10">
-        <h2 id="regulatory-matrix" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2
+          id="regulatory-matrix"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+        >
           Regulatory traceability matrix
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted">
           Regulation → requirement → control → implementation status → evidence → human
           review → last review. Article references point to Regulation (EU) 2024/1689 and
           Regulation (EU) 2016/679 for orientation; they are not a legal assessment.
         </p>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-ink-700">
-          <table className="min-w-full divide-y divide-ink-700 text-left text-xs">
-            <thead className="bg-ink-900/80 text-slate-400">
+        <div className="spectral-card mt-4 overflow-x-auto">
+          <table className="min-w-full divide-y divide-line text-left text-xs">
+            <thead className="bg-graphite/60 text-steel">
               <tr>
-                <th scope="col" className="px-3 py-2 font-medium">Regulation</th>
-                <th scope="col" className="px-3 py-2 font-medium">Requirement</th>
-                <th scope="col" className="px-3 py-2 font-medium">Control</th>
-                <th scope="col" className="px-3 py-2 font-medium">Status</th>
-                <th scope="col" className="px-3 py-2 font-medium">Evidence</th>
-                <th scope="col" className="px-3 py-2 font-medium">Human review</th>
-                <th scope="col" className="px-3 py-2 font-medium">Last review</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Control</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Framework</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Requirement</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Status</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Evidence</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Owner</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Human oversight</th>
+                <th scope="col" className="px-3 py-2 font-mono font-medium uppercase tracking-wider">Last review</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink-700 text-slate-300">
+            <tbody className="divide-y divide-line text-steel">
               {REGULATORY_MATRIX.map((row) => (
                 <tr key={`${row.regulation}-${row.requirement}`}>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.regulation}</td>
-                  <td className="px-3 py-2">{row.requirement}</td>
                   <td className="px-3 py-2">{row.control}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    <Badge tone={controlTone[row.status]}>
-                      {row.status.replaceAll("_", " ")}
-                    </Badge>
+                  <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-ion">
+                    {row.regulation}
                   </td>
-                  <td className="px-3 py-2 font-mono text-[11px] text-slate-400">{row.evidence}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.humanReview}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.lastReview}</td>
+                  <td className="px-3 py-2">{row.requirement}</td>
+                  <td className="whitespace-nowrap px-3 py-2">
+                    <StatusBadge tone={controlTone[row.status]}>
+                      {row.status.replaceAll("_", " ")}
+                    </StatusBadge>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-muted">{row.evidence}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-muted">Unassigned — MVP</td>
+                  <td className="whitespace-nowrap px-3 py-2">{row.humanReview}</td>
+                  <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px]">{row.lastReview}</td>
                 </tr>
               ))}
             </tbody>
@@ -139,14 +155,17 @@ export default function GovernancePage() {
       </section>
 
       <section aria-labelledby="governance-areas" className="mb-10">
-        <h2 id="governance-areas" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2
+          id="governance-areas"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+        >
           Platform governance capabilities
         </h2>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2">
           {governanceAreas.map((area) => (
-            <li key={area.title} className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-              <h3 className="text-sm font-semibold text-white">{area.title}</h3>
-              <p className="mt-1 text-sm text-slate-400">{area.description}</p>
+            <li key={area.title} className="spectral-card p-4">
+              <h3 className="text-sm font-semibold text-ice">{area.title}</h3>
+              <p className="mt-1 text-sm text-muted">{area.description}</p>
             </li>
           ))}
         </ul>
@@ -159,7 +178,7 @@ export default function GovernancePage() {
         />
       </div>
 
-      <p className="border-t border-ink-700 pt-6 text-xs text-slate-500">
+      <p className="border-t border-line pt-6 text-xs text-muted">
         {REGULATORY_DISCLAIMER}
       </p>
     </div>

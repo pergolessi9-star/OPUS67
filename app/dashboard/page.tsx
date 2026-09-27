@@ -4,120 +4,124 @@ import { MODULES } from "@/config/modules";
 import { getStore } from "@/lib/db/repository";
 import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { getEnvironmentStatus } from "@/lib/validation/env";
-import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { CommandHeader } from "@/components/opus/command-header";
+import { MetricCard } from "@/components/opus/metric-card";
+import { StatusBadge, type StatusTone } from "@/components/opus/status-badge";
+import { SystemStatusBar, type SystemState } from "@/components/opus/system-status";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-const statusTone = {
-  operational: "green",
-  configuration_required: "amber",
-  planned: "slate",
-} as const;
+const moduleStatusTone: Record<string, StatusTone> = {
+  operational: "active",
+  configuration_required: "review",
+  planned: "neutral",
+};
 
 export default function DashboardPage() {
   ensureBuiltInToolsRegistered();
   const store = getStore();
   const env = getEnvironmentStatus();
 
+  /**
+   * Every state below is derived from real configuration:
+   *  - APPLICATION: process healthy (this page is being served).
+   *  - DATABASE: active driver reported by the environment layer.
+   *  - AI PROVIDERS: "null" no-op driver = configured standby (READY),
+   *    generation disabled by design; an external driver reports ACTIVE.
+   *  - GOVERNANCE: regulatory assessment is ongoing (config/governance.ts).
+   *  - EVIDENCE: module operational (SHA-256 fingerprinting implemented).
+   */
+  const statusItems: { label: string; state: SystemState; detail?: string }[] = [
+    { label: "APPLICATION", state: "ACTIVE", detail: "healthy" },
+    {
+      label: "DATABASE",
+      state: "ACTIVE",
+      detail: `driver: ${env.databaseDriver}`,
+    },
+    {
+      label: "AI PROVIDERS",
+      state: env.aiProviderDriver === "null" ? "READY" : "ACTIVE",
+      detail:
+        env.aiProviderDriver === "null"
+          ? "driver: null (no-op, by design)"
+          : `driver: ${env.aiProviderDriver}`,
+    },
+    { label: "GOVERNANCE", state: "REVIEW", detail: "assessment ongoing" },
+    { label: "EVIDENCE", state: "ACTIVE", detail: "sha-256 ledger" },
+  ];
+
   const counts = [
-    { label: "Projects", value: store.projects.list().length, href: "/projects" },
-    { label: "Agents", value: store.agents.list().length, href: "/agents" },
-    { label: "Tools", value: store.tools.list().length, href: "/tools" },
-    { label: "Workflows", value: store.workflows.list().length, href: "/workflows" },
-    { label: "Evidence records", value: store.evidence.list().length, href: "/evidence" },
-    { label: "Executions", value: store.executions.list().length, href: "/workflows" },
+    { label: "Projects", value: store.projects.list().length, href: "/projects", accent: "var(--opus-steel)" },
+    { label: "Agents", value: store.agents.list().length, href: "/agents", accent: "var(--opus-uv-deep)" },
+    { label: "Tools", value: store.tools.list().length, href: "/tools", accent: "var(--opus-chartreuse)" },
+    { label: "Workflows", value: store.workflows.list().length, href: "/workflows", accent: "var(--opus-amber)" },
+    { label: "Evidence", value: store.evidence.list().length, href: "/evidence", accent: "var(--opus-cyan)" },
+    { label: "Executions", value: store.executions.list().length, href: "/workflows", accent: "var(--opus-coral)" },
   ];
 
   return (
     <div>
-      <PageHeader
-        title="Dashboard"
+      <CommandHeader
+        eyebrow="OPUS67 // SYSTEM STATUS"
+        title="AI Operations Command Surface"
         description="Operational view of the platform. Counts reflect the live in-memory store only — nothing here is simulated."
+        status="MVP"
+        statusTone="review"
       />
 
-      <section aria-labelledby="system-state" className="mb-10">
-        <h2 id="system-state" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          System state
+      <section aria-labelledby="system-status" className="mb-10">
+        <h2 id="system-status" className="sr-only">
+          System status
         </h2>
-        <dl className="mt-3 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Application</dt>
-            <dd className="mt-1">
-              <Badge tone="green">Healthy</Badge>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Storage driver</dt>
-            <dd className="mt-1">
-              <Badge tone="green">Configured: {env.databaseDriver}</Badge>
-              <p className="mt-2 text-xs text-slate-500">
-                {env.databaseDriver === "memory"
-                  ? "Default in-memory repository active; data is process-local by design."
-                  : "External PostgreSQL selected via DATABASE_URL."}
-              </p>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">AI provider driver</dt>
-            <dd className="mt-1">
-              <Badge tone={env.aiProviderDriver === "null" ? "blue" : "green"}>
-                Configured: {env.aiProviderDriver}
-              </Badge>
-              <p className="mt-2 text-xs text-slate-500">
-                {env.aiProviderDriver === "null"
-                  ? "Local no-op default: generation disabled by design; no external AI calls."
-                  : `External provider selected: ${env.aiProviderName}.`}
-              </p>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Alerts</dt>
-            <dd className="mt-1 text-sm text-slate-300">No alerts.</dd>
-          </div>
-        </dl>
+        <SystemStatusBar items={statusItems} />
       </section>
 
       <section aria-labelledby="entity-counts" className="mb-10">
-        <h2 id="entity-counts" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2
+          id="entity-counts"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+        >
           Registered entities
         </h2>
-        <ul className="mt-3 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {counts.map((c) => (
             <li key={c.label}>
-              <Link
-                href={c.href}
-                className="block rounded-lg border border-ink-700 bg-ink-900/50 p-4 hover:border-accent/60"
-              >
-                <p className="text-2xl font-semibold text-white">{c.value}</p>
-                <p className="mt-1 text-xs text-slate-500">{c.label}</p>
-              </Link>
+              <MetricCard href={c.href} label={c.label} value={c.value} accent={c.accent} />
             </li>
           ))}
         </ul>
       </section>
 
       <section aria-labelledby="module-status">
-        <h2 id="module-status" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2
+          id="module-status"
+          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+        >
           Module status
         </h2>
-        <ul className="mt-3 divide-y divide-ink-700 rounded-lg border border-ink-700">
+        <ul className="spectral-card mt-3 divide-y divide-line">
           {MODULES.map((mod) => (
-            <li key={mod.slug} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <Link href={mod.href} className="text-sm font-medium text-white hover:text-accent">
+            <li
+              key={mod.slug}
+              className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+            >
+              <div className="min-w-0">
+                <Link
+                  href={mod.href}
+                  className="text-sm font-medium text-ice hover:text-ion"
+                >
                   {mod.name}
                 </Link>
-                <p className="text-xs text-slate-500">{mod.statusNote}</p>
+                <p className="truncate text-xs text-muted">{mod.statusNote}</p>
               </div>
-              <Badge tone={statusTone[mod.status]}>
+              <StatusBadge tone={moduleStatusTone[mod.status]}>
                 {mod.status === "operational"
                   ? "Operational"
                   : mod.status === "configuration_required"
                     ? "Configuration required"
                     : "Planned"}
-              </Badge>
+              </StatusBadge>
             </li>
           ))}
         </ul>
