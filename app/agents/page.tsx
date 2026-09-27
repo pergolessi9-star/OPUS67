@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
 import { getStore } from "@/lib/db/repository";
 import { getModule } from "@/lib/utils/module";
-import { Badge } from "@/components/ui/badge";
+import { AgentCard } from "@/components/opus/agent-card";
+import { CommandHeader } from "@/components/opus/command-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
 import { AiInteractionNotice } from "@/components/shared/ai-interaction-notice";
-import type { AgentStatus } from "@/types";
 
 export const metadata: Metadata = { title: "Agents" };
 export const dynamic = "force-dynamic";
-
-const statusTone: Record<AgentStatus, "green" | "amber" | "slate" | "red"> = {
-  draft: "slate",
-  active: "green",
-  paused: "amber",
-  disabled: "red",
-};
 
 export default function AgentsPage() {
   const mod = getModule("agents");
@@ -26,32 +18,29 @@ export default function AgentsPage() {
       {/* Renders only when an external AI provider is active (real AI
           interaction); hidden with the default no-op provider. */}
       <AiInteractionNotice />
-      <PageHeader
+      <CommandHeader
+        eyebrow="OPUS67 // AGENTS"
         title={mod.name}
         description={mod.description}
-        status={mod.status}
-        statusNote={mod.statusNote}
+        status="Operational"
+        statusTone="active"
       />
       {agents.length === 0 ? (
         <EmptyState
           title="No agents registered"
-          description="Agents bind a provider, a model and system instructions. The definition registry is operational; the active execution provider is the local no-op default (generation disabled by design) until AI_PROVIDER is set."
+          description="Agents bind a provider, a model and system instructions. The definition registry is operational; the active execution provider is the local no-op default (generation disabled by design)."
+          hint="To enable real execution: set AI_PROVIDER + a server-side API key, then register an agent definition."
         />
       ) : (
-        <ul className="divide-y divide-ink-700 rounded-lg border border-ink-700">
+        <ul className="grid gap-4 lg:grid-cols-2">
           {agents.map((a) => (
-            <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <p className="text-sm font-medium text-white">{a.name}</p>
-                <p className="text-xs text-slate-500">
-                  {a.provider}/{a.model} · {a.description || "No description"}
-                </p>
-              </div>
-              <Badge tone={statusTone[a.status]}>{a.status}</Badge>
+            <li key={a.id}>
+              <AgentCard agent={a} />
             </li>
           ))}
         </ul>
       )}
+      <p className="mt-6 text-xs text-muted">{mod.statusNote}</p>
     </div>
   );
 }

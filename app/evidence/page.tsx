@@ -1,22 +1,12 @@
 import type { Metadata } from "next";
 import { getStore } from "@/lib/db/repository";
 import { getModule } from "@/lib/utils/module";
-import { Badge } from "@/components/ui/badge";
+import { CommandHeader } from "@/components/opus/command-header";
+import { EvidenceRecord } from "@/components/opus/evidence-record";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
-import type { EvidenceStatus } from "@/types";
 
 export const metadata: Metadata = { title: "Evidence" };
 export const dynamic = "force-dynamic";
-
-const statusTone: Record<EvidenceStatus, "green" | "amber" | "slate" | "red" | "blue"> = {
-  UNVERIFIED: "slate",
-  SYSTEM_GENERATED: "blue",
-  SOURCE_VERIFIED: "blue",
-  HUMAN_REVIEWED: "amber",
-  APPROVED: "green",
-  REJECTED: "red",
-};
 
 export default function EvidencePage() {
   const mod = getModule("evidence");
@@ -24,33 +14,38 @@ export default function EvidencePage() {
 
   return (
     <div>
-      <PageHeader
-        title={mod.name}
-        description={mod.description}
-        status={mod.status}
-        statusNote={mod.statusNote}
+      <CommandHeader
+        eyebrow="OPUS67 // EVIDENCE"
+        title="Evidence Ledger"
+        description="Traceability records with provenance, SHA-256 hashes, timestamps and explicit human review states. Records are never auto-promoted to APPROVED; no immutability is claimed."
+        status="Operational"
+        statusTone="active"
       />
       {evidence.length === 0 ? (
         <EmptyState
-          title="No evidence records"
-          description="Evidence links outputs to provenance, hashes, timestamps and human review. Records are never auto-promoted to APPROVED."
+          title="Evidence ledger empty"
+          description="Evidence links outputs to provenance, hashes, timestamps and human review. No records exist yet — nothing is auto-generated or backfilled."
+          hint="Records appear here when evidence is registered through the platform."
         />
       ) : (
-        <ul className="divide-y divide-ink-700 rounded-lg border border-ink-700">
-          {evidence.map((e) => (
-            <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <p className="text-sm font-medium text-white">{e.source}</p>
-                <p className="font-mono text-xs text-slate-500">
-                  {e.sourceType} · {e.timestamp}
-                  {e.hash ? ` · sha256:${e.hash.slice(0, 12)}…` : " · no hash"}
-                </p>
-              </div>
-              <Badge tone={statusTone[e.status]}>{e.status.replaceAll("_", " ")}</Badge>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div
+            aria-hidden="true"
+            className="hidden grid-cols-[3rem_8rem_1fr_auto] gap-x-4 px-3 pb-2 font-mono text-[10px] uppercase tracking-widest text-muted sm:grid"
+          >
+            <span>Entry</span>
+            <span>Timestamp</span>
+            <span>Source / Hash</span>
+            <span className="text-right">Status · Human review</span>
+          </div>
+          <ol className="spectral-card">
+            {evidence.map((e, i) => (
+              <EvidenceRecord key={e.id} record={e} index={i} />
+            ))}
+          </ol>
+        </>
       )}
+      <p className="mt-6 text-xs text-muted">{mod.statusNote}</p>
     </div>
   );
 }
