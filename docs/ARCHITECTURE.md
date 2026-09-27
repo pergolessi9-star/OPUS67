@@ -22,7 +22,7 @@ UI / services → lib/ai/provider.ts (AIProvider interface) → vendor adapter
 
 - `app/` — Next.js App Router. Pages are Server Components by default;
   client components only where interactivity requires them.
-- `app/api/` — API routes (`/api/health`, `/api/status`).
+- `app/api/` — API routes (`/api/health`, `/api/status`, `/api/tools/execute`).
 - `components/` — `ui` (primitives), `layout`, `shared`.
 - `lib/ai/` — provider abstraction, prompt channel separation.
 - `lib/db/` — repository interfaces + in-memory store.
@@ -50,9 +50,11 @@ PostgreSQL adapter (Neon/Supabase) so no React component ever touches SQL.
 
 ### ADR-4: Provider-agnostic AI layer
 All model access goes through the `AIProvider` interface
-(`generate`, `stream`, `healthCheck`). With no credentials configured, a
-`NullProvider` reports `not_configured` and refuses to generate —
-degradation is explicit, never simulated.
+(`generate`, `stream`, `healthCheck`). The active provider is always
+configured: by default it is the explicit local no-op adapter (`null`),
+which is healthy, refuses to generate by design and makes no external
+calls. Setting `AI_PROVIDER` plus a server-side key selects an external
+adapter. Degradation is explicit, never simulated.
 
 ### ADR-5: Validation at boundaries with strict Zod schemas
 Create-schemas are `.strict()` so server-generated fields (id, timestamps)

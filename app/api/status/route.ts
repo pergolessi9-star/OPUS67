@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getStore } from "@/lib/db/repository";
+import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { MODULES } from "@/config/modules";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
  * store. Contains no credentials or internal paths.
  */
 export async function GET() {
+  ensureBuiltInToolsRegistered();
   const store = getStore();
 
   return NextResponse.json(

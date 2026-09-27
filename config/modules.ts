@@ -40,16 +40,18 @@ export const MODULES: ModuleDescriptor[] = [
     name: "Agents",
     description: "Extensible AI agent definitions with provider/model binding.",
     href: "/agents",
-    status: "configuration_required",
-    statusNote: "Model execution requires an AI provider (see .env.example).",
+    status: "operational",
+    statusNote:
+      "Definition registry operational. Execution provider: local no-op default (generation disabled by design); external provider optional via AI_PROVIDER.",
   },
   {
     slug: "tools",
     name: "Tools",
     description: "External capabilities with explicit input/output schemas and permissions.",
     href: "/tools",
-    status: "configuration_required",
-    statusNote: "No external integrations are wired yet; none is claimed as available.",
+    status: "operational",
+    statusNote:
+      "3 built-in system tools registered and executable (POST /api/tools/execute). No external integrations wired; none is claimed.",
   },
   {
     slug: "workflows",

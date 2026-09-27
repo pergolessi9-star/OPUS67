@@ -30,8 +30,8 @@ export default function AgentsPage() {
       />
       {agents.length === 0 ? (
         <EmptyState
-          title="No agents configured"
-          description="Agents bind a provider, a model and system instructions. Execution additionally requires a configured AI provider — no provider is currently wired."
+          title="No agents registered"
+          description="Agents bind a provider, a model and system instructions. The definition registry is operational; the active execution provider is the local no-op default (generation disabled by design) until AI_PROVIDER is set."
         />
       ) : (
         <ul className="divide-y divide-ink-700 rounded-lg border border-ink-700">

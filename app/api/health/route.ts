@@ -6,8 +6,11 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/health
  *
- * Safe, minimal liveness/readiness signal. Distinguishes application,
- * database and provider state WITHOUT leaking secrets, paths or env values.
+ * Safe, minimal liveness/readiness signal. Reports the ACTIVE drivers
+ * (storage and AI provider) WITHOUT leaking secrets, paths or env values.
+ * The platform is always configured: defaults are the explicit local
+ * drivers ("memory" storage, "null" provider); external services are
+ * opt-in via server-side env vars.
  */
 export async function GET() {
   const env = getEnvironmentStatus();
@@ -18,8 +21,8 @@ export async function GET() {
       service: "OPUS67",
       checks: {
         application: "healthy",
-        database: env.database === "configured" ? "configured" : "not_configured",
-        aiProvider: env.aiProvider === "configured" ? "configured" : "not_configured",
+        storage: env.databaseDriver,
+        aiProvider: env.aiProviderDriver,
       },
     },
     { status: 200 },
