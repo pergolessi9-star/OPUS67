@@ -196,6 +196,9 @@ export const REGULATORY_MATRIX: RegulatoryMatrixRow[] = [
   },
 ];
 
-/** Regulatory disclaimer shown on the home page and governance page. */
+/**
+ * Regulatory disclaimer shown on the home page, the governance page and the
+ * AI legal notice. Mandated verbatim — do not paraphrase.
+ */
 export const REGULATORY_DISCLAIMER =
-  "Regulatory references describe the design and governance framework adopted by OPUS67. They do not constitute certification, endorsement or approval by the European Union, the European Commission or a supervisory authority.";
+  "References to EU legislation describe the regulatory framework considered in the design of OPUS67 and do not constitute certification, conformity assessment, endorsement or approval by the European Union, the European Commission or a supervisory authority.";

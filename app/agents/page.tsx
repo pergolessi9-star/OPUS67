@@ -4,6 +4,7 @@ import { getModule } from "@/lib/utils/module";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { AiInteractionNotice } from "@/components/shared/ai-interaction-notice";
 import type { AgentStatus } from "@/types";
 
 export const metadata: Metadata = { title: "Agents" };
@@ -22,6 +23,9 @@ export default function AgentsPage() {
 
   return (
     <div>
+      {/* Renders only when an external AI provider is active (real AI
+          interaction); hidden with the default no-op provider. */}
+      <AiInteractionNotice />
       <PageHeader
         title={mod.name}
         description={mod.description}

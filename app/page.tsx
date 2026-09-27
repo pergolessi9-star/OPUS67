@@ -2,6 +2,14 @@ import Link from "next/link";
 import { MODULES } from "@/config/modules";
 import { PLATFORM } from "@/config/platform";
 import { REGULATORY_DISCLAIMER } from "@/config/governance";
+import {
+  AUTHOR,
+  EU_EMBLEM,
+  LEGAL_FRAMEWORK_STATEMENT,
+  OWN_BADGES,
+  PROJECT_STATUS,
+  REGULATIONS,
+} from "@/config/regulatory";
 import { Badge } from "@/components/ui/badge";
 
 const statusTone = {
@@ -9,15 +17,6 @@ const statusTone = {
   configuration_required: "amber",
   planned: "slate",
 } as const;
-
-const AI_GOVERNANCE_INDICATORS = [
-  "EU AI Act",
-  "GDPR",
-  "Human Oversight",
-  "Traceability",
-  "Risk Management",
-  "Evidence Governance",
-] as const;
 
 /**
  * GDPR/RGPD principles the system is PREPARED to document. They are design
@@ -50,7 +49,9 @@ export default function HomePage() {
           <h1 id="intro" className="font-mono text-4xl font-bold tracking-widest text-white sm:text-5xl">
             OPUS<span className="text-accent">67</span>
           </h1>
-          <Badge tone="amber">{PLATFORM.stage}</Badge>
+          <Badge tone="amber">
+            {PLATFORM.stage} — {PLATFORM.stageLabel}
+          </Badge>
         </div>
         <p className="mt-4 max-w-2xl text-lg text-slate-300">
           OPUS67 is a modular technology platform for working with artificial
@@ -74,67 +75,148 @@ export default function HomePage() {
       </section>
 
       <section
-        aria-labelledby="product-status"
+        aria-labelledby="eu-ai-governance"
+        className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
+      >
+        <h2
+          id="eu-ai-governance"
+          className="font-mono text-sm font-semibold uppercase tracking-[0.25em] text-accent"
+        >
+          European AI Governance
+        </h2>
+
+        <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-start">
+          <figure className="shrink-0">
+            <span className="block w-40 overflow-hidden rounded-md border border-ink-600 bg-white p-1">
+              {/* Official reproduction of the EU emblem, byte-identical to the
+                  file published at european-union.europa.eu (see
+                  docs/REGULATORY-SOURCES.md). Do not recolour or crop. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={EU_EMBLEM.localFile}
+                alt={EU_EMBLEM.alt}
+                className="h-auto w-full"
+              />
+            </span>
+            <figcaption className="mt-2 max-w-40 text-[10px] leading-snug text-slate-500">
+              Official EU emblem —{" "}
+              <a
+                href={EU_EMBLEM.sourcePage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                european-union.europa.eu
+              </a>
+            </figcaption>
+          </figure>
+
+          <div className="min-w-0 flex-1">
+            <dl className="space-y-2">
+              <div className="flex flex-wrap items-baseline gap-x-3">
+                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-white">
+                  {REGULATIONS.aiAct.label}
+                </dt>
+                <dd className="text-sm text-slate-400">
+                  <a
+                    href={REGULATIONS.aiAct.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-accent hover:underline"
+                  >
+                    {REGULATIONS.aiAct.citation}
+                  </a>
+                </dd>
+              </div>
+              <div className="flex flex-wrap items-baseline gap-x-3">
+                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-white">
+                  {REGULATIONS.gdpr.label}
+                </dt>
+                <dd className="text-sm text-slate-400">
+                  <a
+                    href={REGULATIONS.gdpr.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-accent hover:underline"
+                  >
+                    {REGULATIONS.gdpr.citation}
+                  </a>
+                </dd>
+              </div>
+              <div className="flex flex-wrap items-baseline gap-x-3">
+                <dt className="font-mono text-sm font-semibold tracking-widest text-white">
+                  OPUS67
+                </dt>
+                <dd className="text-sm text-slate-400">
+                  {PLATFORM.stage} — {PLATFORM.stageLabel}
+                </dd>
+              </div>
+            </dl>
+
+            <p className="mt-4 max-w-3xl text-sm text-slate-300">
+              {LEGAL_FRAMEWORK_STATEMENT}
+            </p>
+          </div>
+        </div>
+
+        <ul
+          className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+          aria-label="OPUS67 own informative badges"
+        >
+          {OWN_BADGES.map((badge) => (
+            <li key={badge.label}>
+              <Link
+                href={badge.href}
+                className="block h-full rounded-md border border-accent/50 bg-accent/10 px-3 py-2 text-center transition-colors hover:bg-accent/20"
+              >
+                <span className="block font-mono text-[11px] font-semibold uppercase tracking-widest text-accent">
+                  {badge.label}
+                </span>
+                {badge.sublabel ? (
+                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-wide text-slate-400">
+                    {badge.sublabel}
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-slate-500">
+          OPUS67 badges are the platform&apos;s own informative design. They are
+          not certificates, seals or endorsements issued by the European Union
+          or any other institution.
+        </p>
+      </section>
+
+      <section
+        aria-labelledby="project-status"
         className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
       >
         <div className="flex flex-wrap items-center gap-3">
-          <h2 id="product-status" className="text-lg font-semibold text-white">
-            Product Status
+          <h2
+            id="project-status"
+            className="font-mono text-sm font-semibold uppercase tracking-[0.25em] text-accent"
+          >
+            Project Status
           </h2>
           <Badge tone="amber">
             {PLATFORM.stage} — {PLATFORM.stageLabel}
           </Badge>
         </div>
         <p className="mt-3 max-w-3xl text-sm text-slate-400">{PLATFORM.stageNote}</p>
-      </section>
-
-      <section
-        aria-labelledby="eu-ai-governance"
-        className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
-      >
-        <h2 id="eu-ai-governance" className="text-lg font-semibold text-white">
-          European AI Governance
-        </h2>
-        <p className="mt-3 max-w-3xl text-sm text-slate-300">
-          OPUS67 is designed with a compliance-oriented architecture aligned with the
-          governance, transparency, traceability, human oversight and risk-management
-          principles of the EU AI Act.
-        </p>
-        <ul className="mt-4 flex flex-wrap gap-2" aria-label="Governance indicators">
-          {AI_GOVERNANCE_INDICATORS.map((indicator) => (
-            <li key={indicator}>
-              <Badge tone="blue">{indicator}</Badge>
-            </li>
+        <dl className="mt-5 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+          {PROJECT_STATUS.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-baseline justify-between gap-4 border-b border-ink-800 pb-2"
+            >
+              <dt className="text-sm text-slate-400">{item.label}:</dt>
+              <dd className="text-right font-mono text-sm text-slate-200">
+                {item.value}
+              </dd>
+            </div>
           ))}
-        </ul>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href="/governance#eu-ai-act"
-            className="rounded-md border border-accent/50 bg-accent/10 px-4 py-2 text-center transition-colors hover:bg-accent/20"
-          >
-            <span className="block font-mono text-xs font-semibold uppercase tracking-widest text-accent">
-              EU AI Act
-            </span>
-            <span className="mt-1 block font-mono text-[10px] uppercase tracking-wide text-slate-400">
-              Compliance-oriented
-            </span>
-          </Link>
-          <Link
-            href="/governance#gdpr-rgpd"
-            className="rounded-md border border-accent/50 bg-accent/10 px-4 py-2 text-center transition-colors hover:bg-accent/20"
-          >
-            <span className="block font-mono text-xs font-semibold uppercase tracking-widest text-accent">
-              GDPR / RGPD
-            </span>
-            <span className="mt-1 block font-mono text-[10px] uppercase tracking-wide text-slate-400">
-              Privacy-by-design
-            </span>
-          </Link>
-        </div>
-        <p className="mt-4 text-xs text-slate-500">
-          OPUS67 badges are the platform&apos;s own informative design. They are not
-          certificates, seals or endorsements issued by any institution.
-        </p>
+        </dl>
       </section>
 
       <section
@@ -145,8 +227,8 @@ export default function HomePage() {
           GDPR / RGPD
         </h2>
         <p className="mt-3 max-w-3xl text-sm text-slate-300">
-          OPUS67 incorporates privacy-by-design and data-governance principles intended
-          to support GDPR/RGPD-compliant operation.
+          OPUS67 incorporates privacy-by-design and data-governance principles
+          intended to support operation aligned with Regulation (EU) 2016/679.
         </p>
         <p className="mt-4 text-xs uppercase tracking-wide text-slate-500">
           Principles the system is prepared to document — current states on{" "}
@@ -206,9 +288,17 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <p className="border-t border-ink-700 pt-6 text-xs text-slate-500">
-        {REGULATORY_DISCLAIMER}
-      </p>
+      <footer className="space-y-3 border-t border-ink-700 pt-6 text-xs text-slate-500">
+        <p>{REGULATORY_DISCLAIMER}</p>
+        <p>
+          {AUTHOR.heading}: {AUTHOR.name}
+        </p>
+        <p>
+          <Link href="/legal/ai" className="text-accent hover:underline">
+            Artificial Intelligence Legal Notice
+          </Link>
+        </p>
+      </footer>
     </div>
   );
 }
