@@ -31,14 +31,16 @@ See `docs/ARCHITECTURE.md` for the full description and ADRs.
 | --- | --- | --- |
 | Dashboard | `/dashboard` | Operational (live store, honest empty states) |
 | Projects | `/projects` | Operational |
-| Agents | `/agents` | Configuration required (AI provider) |
-| Tools | `/tools` | Configuration required (integrations) |
+| Agents | `/agents` | Operational (registry; execution via local no-op provider by default) |
+| Tools | `/tools` | Operational (3 built-in system tools, executable) |
 | Workflows | `/workflows` | Operational (definition model) |
 | Evidence | `/evidence` | Operational (SHA-256 fingerprinting) |
 | Governance | `/governance` | Operational (compliance-oriented controls) |
 | Settings | `/settings` | Operational |
+| AI Legal Notice | `/legal/ai` | Operational |
 | Health API | `/api/health` | Operational |
 | Status API | `/api/status` | Operational |
+| Tools execute API | `/api/tools/execute` | Operational |
 
 ## Requirements
 
