@@ -22,9 +22,10 @@ npm start          # serve production build
 
 ## Health monitoring
 
-`GET /api/health` — use as the uptime probe. It distinguishes:
-application healthy / database not_configured / provider not_configured,
-without leaking configuration values.
+`GET /api/health` — use as the uptime probe. It reports the active drivers
+(application healthy / storage `memory`|`postgresql` / provider `null` or
+external name) without leaking configuration values. The defaults are
+explicit working drivers, so a fresh boot is fully configured.
 
 ## Logging
 

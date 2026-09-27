@@ -41,7 +41,7 @@ describe("GET /api/health", () => {
 });
 
 describe("GET /api/status", () => {
-  it("reports module states and zero counts on an empty store", async () => {
+  it("reports module states; counts are zero except auto-registered built-in tools", async () => {
     resetStore();
     const res = await statusGET();
     expect(res.status).toBe(200);
@@ -50,6 +50,13 @@ describe("GET /api/status", () => {
       counts: Record<string, number>;
     };
     expect(body.modules.length).toBeGreaterThan(0);
-    expect(Object.values(body.counts).every((n) => n === 0)).toBe(true);
+    // Built-in system tools register automatically (real, executable tools);
+    // every other entity starts at zero — no fabricated demo data.
+    expect(body.counts.tools).toBe(3);
+    for (const [key, value] of Object.entries(body.counts)) {
+      if (key !== "tools") {
+        expect(value).toBe(0);
+      }
+    }
   });
 });
