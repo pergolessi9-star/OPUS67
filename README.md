@@ -116,5 +116,8 @@ branches → PR → CI green → Vercel Preview READY → review → merge.
 ## Status
 
 Version 0.1.0 — core milestone. Known limitations and HOLD items are
-listed in `docs/ROADMAP.md`. License: pending owner decision (no license
-file is shipped until the owner chooses one).
+listed in `docs/ROADMAP.md`. License: pending owner decision (see `LICENSE`).
+
+## Author
+
+Author & development: **Prof. Manuel Gago Fernández**
