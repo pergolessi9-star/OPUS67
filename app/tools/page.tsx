@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getStore } from "@/lib/db/repository";
+import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { getModule } from "@/lib/utils/module";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,6 +19,7 @@ const statusTone: Record<ToolStatus, "green" | "amber" | "slate" | "red"> = {
 
 export default function ToolsPage() {
   const mod = getModule("tools");
+  ensureBuiltInToolsRegistered();
   const tools = getStore().tools.list();
 
   return (
@@ -31,7 +33,7 @@ export default function ToolsPage() {
       {tools.length === 0 ? (
         <EmptyState
           title="No tools registered"
-          description="External integrations are encapsulated behind explicit schemas and permissions. No integration is currently wired, so none is declared AVAILABLE."
+          description="Tools are encapsulated behind explicit schemas and permissions. Built-in system tools register automatically; external integrations are optional and none is claimed as available."
         />
       ) : (
         <ul className="divide-y divide-ink-700 rounded-lg border border-ink-700">
