@@ -6,18 +6,19 @@ import {
   REGULATORY_DISCLAIMER,
   type ControlStatus,
 } from "@/config/governance";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge, type StatusTone } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { GovernanceControl } from "@/components/governance/governance-control";
 
 export const metadata: Metadata = { title: "Governance" };
 
-const controlTone: Record<ControlStatus, "green" | "amber" | "slate" | "blue"> = {
-  IMPLEMENTED: "green",
-  PARTIAL: "amber",
-  PLANNED: "slate",
-  NOT_APPLICABLE: "slate",
-  REQUIRES_ASSESSMENT: "blue",
+const controlTone: Record<ControlStatus, StatusTone> = {
+  IMPLEMENTED: "chartreuse",
+  PARTIAL: "cyan",
+  PLANNED: "neutral",
+  NOT_APPLICABLE: "neutral",
+  REQUIRES_ASSESSMENT: "amber",
 };
 
 const governanceAreas = [
@@ -60,8 +61,8 @@ export default function GovernancePage() {
         statusNote={mod.statusNote}
       />
 
-      <div className="mb-8 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
-        <p className="text-sm text-amber-200">
+      <div className="spectral-card mb-8 border-l-2 border-l-opus-amber p-4" role="note">
+        <p className="text-sm text-opus-amber">
           OPUS67 provides governance support and compliance-oriented controls.
           It does <strong>not</strong> claim EU AI Act compliance by itself;
           conformity requires organisational measures outside this software.
@@ -69,68 +70,68 @@ export default function GovernancePage() {
       </div>
 
       <section aria-labelledby="control-states" className="mb-10">
-        <h2 id="control-states" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Regulatory controls — verifiable states
+        <h2
+          id="control-states"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Regulatory Controls — Verifiable States
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-opus-muted">
           States are IMPLEMENTED / PARTIAL / PLANNED / NOT APPLICABLE / REQUIRES ASSESSMENT.
           &quot;COMPLIANT&quot; is never used as an automatic state.
         </p>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {GOVERNANCE_CONTROLS.map((control) => (
-            <li
+            <GovernanceControl
               key={control.slug}
               id={control.slug}
-              className="scroll-mt-20 rounded-lg border border-ink-700 bg-ink-900/50 p-4"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-white">{control.name}</h3>
-                <Badge tone={controlTone[control.status]}>
-                  {control.status.replaceAll("_", " ")}
-                </Badge>
-              </div>
-              <p className="mt-2 text-xs text-slate-400">{control.summary}</p>
-            </li>
+              name={control.name}
+              status={control.status}
+              summary={control.summary}
+            />
           ))}
         </ul>
       </section>
 
       <section aria-labelledby="regulatory-matrix" className="mb-10">
-        <h2 id="regulatory-matrix" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Regulatory traceability matrix
+        <h2
+          id="regulatory-matrix"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Governance Control Matrix
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-opus-muted">
           Regulation → requirement → control → implementation status → evidence → human
           review → last review. Article references point to Regulation (EU) 2024/1689 and
           Regulation (EU) 2016/679 for orientation; they are not a legal assessment.
         </p>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-ink-700">
-          <table className="min-w-full divide-y divide-ink-700 text-left text-xs">
-            <thead className="bg-ink-900/80 text-slate-400">
+        <div className="spectral-card mt-4 overflow-x-auto p-0">
+          <table className="min-w-full divide-y divide-opus-border/60 text-left text-xs">
+            <thead className="text-opus-muted">
               <tr>
-                <th scope="col" className="px-3 py-2 font-medium">Regulation</th>
-                <th scope="col" className="px-3 py-2 font-medium">Requirement</th>
-                <th scope="col" className="px-3 py-2 font-medium">Control</th>
-                <th scope="col" className="px-3 py-2 font-medium">Status</th>
-                <th scope="col" className="px-3 py-2 font-medium">Evidence</th>
-                <th scope="col" className="px-3 py-2 font-medium">Human review</th>
-                <th scope="col" className="px-3 py-2 font-medium">Last review</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Framework</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Requirement</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Control</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Status</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Evidence</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Human oversight</th>
+                <th scope="col" className="px-3 py-2 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">Last review</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ink-700 text-slate-300">
+            <tbody className="divide-y divide-opus-border/60 text-opus-steel">
               {REGULATORY_MATRIX.map((row) => (
                 <tr key={`${row.regulation}-${row.requirement}`}>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.regulation}</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-opus-text">{row.regulation}</td>
                   <td className="px-3 py-2">{row.requirement}</td>
                   <td className="px-3 py-2">{row.control}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    <Badge tone={controlTone[row.status]}>
+                  <td className="whitespace-nowrap px-3 py-2">
+                    <StatusBadge tone={controlTone[row.status]}>
                       {row.status.replaceAll("_", " ")}
-                    </Badge>
+                    </StatusBadge>
                   </td>
-                  <td className="px-3 py-2 font-mono text-[11px] text-slate-400">{row.evidence}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.humanReview}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.lastReview}</td>
+                  <td className="opus-id px-3 py-2 text-opus-muted">{row.evidence}</td>
+                  <td className="whitespace-nowrap px-3 py-2">{row.humanReview}</td>
+                  <td className="opus-id whitespace-nowrap px-3 py-2">{row.lastReview}</td>
                 </tr>
               ))}
             </tbody>
@@ -139,14 +140,21 @@ export default function GovernancePage() {
       </section>
 
       <section aria-labelledby="governance-areas" className="mb-10">
-        <h2 id="governance-areas" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Platform governance capabilities
+        <h2
+          id="governance-areas"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Platform Governance Capabilities
         </h2>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2">
           {governanceAreas.map((area) => (
-            <li key={area.title} className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-              <h3 className="text-sm font-semibold text-white">{area.title}</h3>
-              <p className="mt-1 text-sm text-slate-400">{area.description}</p>
+            <li
+              key={area.title}
+              className="spectral-card p-4"
+              style={{ "--module-accent": "var(--opus-amber)" } as React.CSSProperties}
+            >
+              <h3 className="text-sm font-semibold text-opus-text">{area.title}</h3>
+              <p className="mt-1 text-sm text-opus-steel">{area.description}</p>
             </li>
           ))}
         </ul>
@@ -159,7 +167,7 @@ export default function GovernancePage() {
         />
       </div>
 
-      <p className="border-t border-ink-700 pt-6 text-xs text-slate-500">
+      <p className="border-t border-opus-border pt-6 text-xs text-opus-muted">
         {REGULATORY_DISCLAIMER}
       </p>
     </div>

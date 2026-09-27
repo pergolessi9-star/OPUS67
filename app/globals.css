@@ -2,15 +2,206 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* ==========================================================================
+   OPUS67 SPECTRAL SYSTEM — design tokens
+   Single source of truth for color, elevation, motion. Dark is the primary
+   experience; light is a full theme (Ice / Mist surfaces, Graphite type).
+   ========================================================================== */
+
+:root,
+:root[data-theme="dark"] {
   color-scheme: dark;
+
+  /* Nocturnal base */
+  --opus-bg: #07090d;              /* Obsidian */
+  --opus-surface: #0d1117;         /* Carbon */
+  --opus-surface-elevated: #151b23;/* Graphite */
+  --opus-border: #232c38;
+  --opus-border-strong: #32405180;
+
+  /* Spectral accents */
+  --opus-chartreuse: #c7ff38;      /* action / system active */
+  --opus-cyan: #18e7e7;            /* intelligence / data / traceability */
+  --opus-coral: #ff4d67;           /* alerts / critical decisions */
+  --opus-amber: #ffb020;           /* pending / review */
+  --opus-ultraviolet: #7857ff;     /* agents / models / inference */
+  --opus-ultraviolet-hi: #a996ff;  /* AA normal text on dark */
+
+  /* Neutrals */
+  --opus-text: #f3f7fa;            /* Ice */
+  --opus-steel: #a6b0bf;           /* Steel */
+  --opus-muted: #8d99a8;           /* Muted (brightened: >= 4.5:1 on Obsidian) */
+
+  /* Semantic */
+  --opus-success: var(--opus-chartreuse);
+  --opus-warning: var(--opus-amber);
+  --opus-danger: var(--opus-coral);
+  --opus-info: var(--opus-cyan);
+
+  /* Shape & motion */
+  --opus-radius: 10px;
+  --opus-shadow: 0 1px 0 rgba(243, 247, 250, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
+  --opus-transition: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --opus-bg: #eef2f5;              /* Mist */
+  --opus-surface: #f3f7fa;         /* Ice */
+  --opus-surface-elevated: #ffffff;
+  --opus-border: #d5dde5;
+  --opus-border-strong: #b9c5d280;
+
+  /* Accents deepened where AA requires it on light surfaces */
+  --opus-chartreuse: #5e9400;
+  --opus-cyan: #0a7c84;
+  --opus-coral: #c81e3a;
+  --opus-amber: #8a5c00;
+  --opus-ultraviolet: #5533e0;
+  --opus-ultraviolet-hi: #5533e0;
+
+  --opus-text: #151b23;            /* Graphite typography */
+  --opus-steel: #455160;
+  --opus-muted: #4d5a6a;
+
+  --opus-shadow: 0 1px 0 rgba(21, 27, 35, 0.04) inset, 0 8px 24px rgba(21, 27, 35, 0.08);
 }
 
 body {
-  @apply bg-ink-950 text-slate-200 antialiased;
+  @apply bg-opus-bg font-sans text-opus-text antialiased;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--opus-chartreuse) 30%, transparent);
 }
 
 /* Visible keyboard focus (WCAG 2.4.7) */
 :focus-visible {
-  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-ink-950;
+  outline: 2px solid var(--opus-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   OPUS67 SPECTRAL LINE — the product signature.
+   An extremely thin luminous line transitioning
+   chartreuse → cyan → ultraviolet → coral. Used on active borders, nav
+   indicators, workflow connectors, evidence ledger and headers.
+   -------------------------------------------------------------------------- */
+.spectral-line {
+  position: relative;
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    var(--opus-chartreuse),
+    var(--opus-cyan) 34%,
+    var(--opus-ultraviolet) 67%,
+    var(--opus-coral)
+  );
+  opacity: 0.9;
+}
+
+.spectral-line--vertical {
+  width: 1px;
+  height: auto;
+  align-self: stretch;
+  background: linear-gradient(
+    180deg,
+    var(--opus-chartreuse),
+    var(--opus-cyan) 34%,
+    var(--opus-ultraviolet) 67%,
+    var(--opus-coral)
+  );
+}
+
+/* Discreet traversal of the gradient; disabled for reduced motion */
+@keyframes spectral-drift {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.spectral-line--animated {
+  background-size: 200% 100%;
+  animation: spectral-drift 6s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Spectral Card — translucent surface, hairline border, micro top highlight,
+   per-module chromatic identity via --module-accent.
+   -------------------------------------------------------------------------- */
+.spectral-card {
+  position: relative;
+  border: 1px solid var(--opus-border);
+  border-radius: var(--opus-radius);
+  background: color-mix(in srgb, var(--opus-surface-elevated) 72%, transparent);
+  box-shadow: var(--opus-shadow);
+  transition:
+    border-color var(--opus-transition),
+    background-color var(--opus-transition),
+    transform var(--opus-transition);
+}
+
+.spectral-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: var(--opus-radius) var(--opus-radius) 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--module-accent, var(--opus-cyan)) 65%, transparent),
+    transparent
+  );
+  opacity: 0.55;
+}
+
+.spectral-card:hover {
+  border-color: color-mix(in srgb, var(--module-accent, var(--opus-cyan)) 40%, var(--opus-border));
+}
+
+/* Monospace treatment for technical identifiers (SHA, hashes, IDs, versions) */
+.opus-id {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+/* Status pulse — one discreet confirmation beat, never constant animation */
+@keyframes status-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); }
+  100% { box-shadow: 0 0 0 6px transparent; }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+.status-dot--pulse {
+  animation: status-pulse 1.2s ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spectral-line--animated,
+  .status-dot--pulse {
+    animation: none;
+  }
+  .spectral-card {
+    transition: none;
+  }
+}
+
+/* Prose links must be distinguishable without relying on colour alone
+   (WCAG 2.2 AA — links inside body text are underlined). */
+main p a,
+main figcaption a,
+main dd a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

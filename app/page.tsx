@@ -10,13 +10,25 @@ import {
   PROJECT_STATUS,
   REGULATIONS,
 } from "@/config/regulatory";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/badge";
+import { SpectralLine } from "@/components/spectral/spectral-line";
+import { ModuleCard } from "@/components/cards/module-card";
+import { RegulatoryBadge } from "@/components/regulatory/regulatory-badge";
+import { WorkflowNode } from "@/components/workflows/workflow-node";
+import type { ModuleSlug, ModuleStatus } from "@/config/modules";
+import type { StatusTone } from "@/components/ui/badge";
 
-const statusTone = {
-  operational: "green",
+const moduleTone: Record<ModuleStatus, StatusTone> = {
+  operational: "chartreuse",
   configuration_required: "amber",
-  planned: "slate",
-} as const;
+  planned: "neutral",
+};
+
+const moduleStatusLabel: Record<ModuleStatus, string> = {
+  operational: "Operational",
+  configuration_required: "Config required",
+  planned: "Planned",
+};
 
 /**
  * GDPR/RGPD principles the system is PREPARED to document. They are design
@@ -38,56 +50,119 @@ const GDPR_PRINCIPLES = [
   "Accountability",
 ] as const;
 
+/** Connector segment of the oversight pipeline: horizontal on desktop, vertical on mobile. */
+function FlowConnector() {
+  return (
+    <>
+      <span aria-hidden="true" className="spectral-line mx-1 hidden w-6 shrink-0 lg:block" />
+      <span aria-hidden="true" className="spectral-line spectral-line--vertical mx-auto my-1 h-6 lg:hidden" />
+    </>
+  );
+}
+
+/**
+ * Abstract oversight chain: HUMAN → AGENT → TOOL → WORKFLOW → EVIDENCE →
+ * DECISION. Pure geometry — nodes, lines and states. No robots, no brains,
+ * no stock imagery.
+ */
+function OversightPipeline() {
+  const nodes = [
+    { kind: "human", label: "Human", detail: "Oversight authority" },
+    { kind: "agent", label: "Agent", detail: "Provider + model binding" },
+    { kind: "tool", label: "Tool", detail: "Schema-bound capability" },
+    { kind: "workflow", label: "Workflow", detail: "Ordered steps" },
+    { kind: "evidence", label: "Evidence", detail: "SHA-256 provenance" },
+    { kind: "decision", label: "Decision", detail: "Human review gate" },
+  ] as const;
+
+  return (
+    <div
+      role="img"
+      aria-label="Oversight chain: human, agent, tool, workflow, evidence, decision — connected by the spectral line."
+      className="flex flex-col items-stretch lg:flex-row lg:items-center"
+    >
+      {nodes.map((node, i) => (
+        <div key={node.kind} className="flex min-w-0 flex-1 flex-col items-stretch lg:flex-row lg:items-center">
+          {i > 0 ? <FlowConnector /> : null}
+          <div className="min-w-0 flex-1">
+            <WorkflowNode kind={node.kind} label={node.label} detail={node.detail} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="space-y-14">
-      <section aria-labelledby="intro" className="pt-6">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
-          AI systems platform
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section aria-labelledby="intro" className="pt-4">
+        <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-opus-chartreuse">
+          AI Systems Platform
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-4">
-          <h1 id="intro" className="font-mono text-4xl font-bold tracking-widest text-white sm:text-5xl">
-            OPUS<span className="text-accent">67</span>
+          <h1
+            id="intro"
+            className="font-mono text-4xl font-bold tracking-[0.18em] text-opus-text sm:text-5xl"
+          >
+            OPUS<span className="text-opus-chartreuse">67</span>
           </h1>
-          <Badge tone="amber">
-            {PLATFORM.stage} — {PLATFORM.stageLabel}
-          </Badge>
+          <StatusBadge tone="amber">
+            {PLATFORM.stage} · {PLATFORM.stageLabel}
+          </StatusBadge>
         </div>
-        <p className="mt-4 max-w-2xl text-lg text-slate-300">
+        <SpectralLine animated className="mt-5 max-w-md" />
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed text-opus-steel">
           OPUS67 is a modular technology platform for working with artificial
           intelligence systems: agents, tools, workflows, evidence and
           governance — built for traceability and human oversight.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/dashboard"
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-muted"
+            className="border border-opus-chartreuse bg-opus-chartreuse px-5 py-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-opus-bg transition-colors hover:bg-transparent hover:text-opus-chartreuse"
           >
-            Open dashboard
+            Open Dashboard
           </Link>
           <Link
             href="/governance"
-            className="rounded-md border border-ink-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-ink-800"
+            className="border border-opus-border px-5 py-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-opus-text transition-colors hover:border-opus-amber hover:text-opus-amber"
           >
-            Governance model
+            Governance
           </Link>
         </div>
       </section>
 
-      <section
-        aria-labelledby="eu-ai-governance"
-        className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
-      >
+      {/* ── Oversight pipeline ───────────────────────────────────────── */}
+      <section aria-labelledby="oversight-chain">
+        <h2
+          id="oversight-chain"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Oversight Chain
+        </h2>
+        <div className="mt-4">
+          <OversightPipeline />
+        </div>
+        <p className="mt-4 text-xs text-opus-muted">
+          Every AI output can be traced back through evidence to a human
+          decision. Nothing in this chain is simulated.
+        </p>
+      </section>
+
+      {/* ── European AI governance ───────────────────────────────────── */}
+      <section aria-labelledby="eu-ai-governance" className="spectral-card p-6">
         <h2
           id="eu-ai-governance"
-          className="font-mono text-sm font-semibold uppercase tracking-[0.25em] text-accent"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-cyan"
         >
           European AI Governance
         </h2>
 
         <div className="mt-5 flex flex-col gap-6 sm:flex-row sm:items-start">
           <figure className="shrink-0">
-            <span className="block w-40 overflow-hidden rounded-md border border-ink-600 bg-white p-1">
+            <span className="block w-40 overflow-hidden border border-opus-border bg-white p-1">
               {/* Official reproduction of the EU emblem, byte-identical to the
                   file published at european-union.europa.eu (see
                   docs/REGULATORY-SOURCES.md). Do not recolour or crop. */}
@@ -98,13 +173,13 @@ export default function HomePage() {
                 className="h-auto w-full"
               />
             </span>
-            <figcaption className="mt-2 max-w-40 text-[10px] leading-snug text-slate-500">
+            <figcaption className="mt-2 max-w-40 text-[10px] leading-snug text-opus-muted">
               Official EU emblem —{" "}
               <a
                 href={EU_EMBLEM.sourcePage}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent hover:underline"
+                className="text-opus-cyan hover:underline"
               >
                 european-union.europa.eu
               </a>
@@ -114,46 +189,46 @@ export default function HomePage() {
           <div className="min-w-0 flex-1">
             <dl className="space-y-2">
               <div className="flex flex-wrap items-baseline gap-x-3">
-                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-white">
+                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-opus-text">
                   {REGULATIONS.aiAct.label}
                 </dt>
-                <dd className="text-sm text-slate-400">
+                <dd className="text-sm text-opus-steel">
                   <a
                     href={REGULATIONS.aiAct.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-accent hover:underline"
+                    className="hover:text-opus-cyan hover:underline"
                   >
                     {REGULATIONS.aiAct.citation}
                   </a>
                 </dd>
               </div>
               <div className="flex flex-wrap items-baseline gap-x-3">
-                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-white">
+                <dt className="font-mono text-sm font-semibold uppercase tracking-widest text-opus-text">
                   {REGULATIONS.gdpr.label}
                 </dt>
-                <dd className="text-sm text-slate-400">
+                <dd className="text-sm text-opus-steel">
                   <a
                     href={REGULATIONS.gdpr.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-accent hover:underline"
+                    className="hover:text-opus-cyan hover:underline"
                   >
                     {REGULATIONS.gdpr.citation}
                   </a>
                 </dd>
               </div>
               <div className="flex flex-wrap items-baseline gap-x-3">
-                <dt className="font-mono text-sm font-semibold tracking-widest text-white">
+                <dt className="font-mono text-sm font-semibold tracking-widest text-opus-text">
                   OPUS67
                 </dt>
-                <dd className="text-sm text-slate-400">
+                <dd className="text-sm text-opus-steel">
                   {PLATFORM.stage} — {PLATFORM.stageLabel}
                 </dd>
               </div>
             </dl>
 
-            <p className="mt-4 max-w-3xl text-sm text-slate-300">
+            <p className="mt-4 max-w-3xl text-sm text-opus-steel">
               {LEGAL_FRAMEWORK_STATEMENT}
             </p>
           </div>
@@ -164,75 +239,60 @@ export default function HomePage() {
           aria-label="OPUS67 own informative badges"
         >
           {OWN_BADGES.map((badge) => (
-            <li key={badge.label}>
-              <Link
-                href={badge.href}
-                className="block h-full rounded-md border border-accent/50 bg-accent/10 px-3 py-2 text-center transition-colors hover:bg-accent/20"
-              >
-                <span className="block font-mono text-[11px] font-semibold uppercase tracking-widest text-accent">
-                  {badge.label}
-                </span>
-                {badge.sublabel ? (
-                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-wide text-slate-400">
-                    {badge.sublabel}
-                  </span>
-                ) : null}
-              </Link>
-            </li>
+            <RegulatoryBadge
+              key={badge.label}
+              label={badge.label}
+              sublabel={badge.sublabel ?? undefined}
+              href={badge.href}
+            />
           ))}
         </ul>
-        <p className="mt-4 text-xs text-slate-500">
+        <p className="mt-4 text-xs text-opus-muted">
           OPUS67 badges are the platform&apos;s own informative design. They are
           not certificates, seals or endorsements issued by the European Union
           or any other institution.
         </p>
       </section>
 
-      <section
-        aria-labelledby="project-status"
-        className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
-      >
+      {/* ── Project status ───────────────────────────────────────────── */}
+      <section aria-labelledby="project-status" className="spectral-card p-6">
         <div className="flex flex-wrap items-center gap-3">
           <h2
             id="project-status"
-            className="font-mono text-sm font-semibold uppercase tracking-[0.25em] text-accent"
+            className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
           >
             Project Status
           </h2>
-          <Badge tone="amber">
-            {PLATFORM.stage} — {PLATFORM.stageLabel}
-          </Badge>
+          <StatusBadge tone="amber">
+            {PLATFORM.stage} · {PLATFORM.stageLabel}
+          </StatusBadge>
         </div>
-        <p className="mt-3 max-w-3xl text-sm text-slate-400">{PLATFORM.stageNote}</p>
+        <p className="mt-3 max-w-3xl text-sm text-opus-steel">{PLATFORM.stageNote}</p>
         <dl className="mt-5 grid gap-x-8 gap-y-2 sm:grid-cols-2">
           {PROJECT_STATUS.map((item) => (
             <div
               key={item.label}
-              className="flex items-baseline justify-between gap-4 border-b border-ink-800 pb-2"
+              className="flex items-baseline justify-between gap-4 border-b border-opus-border/60 pb-2"
             >
-              <dt className="text-sm text-slate-400">{item.label}:</dt>
-              <dd className="text-right font-mono text-sm text-slate-200">
-                {item.value}
-              </dd>
+              <dt className="text-sm text-opus-muted">{item.label}:</dt>
+              <dd className="text-right font-mono text-sm text-opus-text">{item.value}</dd>
             </div>
           ))}
         </dl>
       </section>
 
-      <section
-        aria-labelledby="gdpr-rgpd"
-        className="rounded-lg border border-ink-700 bg-ink-900/40 p-6"
-      >
-        <h2 id="gdpr-rgpd" className="text-lg font-semibold text-white">
+      {/* ── GDPR / RGPD ──────────────────────────────────────────────── */}
+      <section aria-labelledby="gdpr-rgpd" className="spectral-card p-6">
+        <h2 id="gdpr-rgpd" className="text-lg font-semibold text-opus-text">
           GDPR / RGPD
         </h2>
-        <p className="mt-3 max-w-3xl text-sm text-slate-300">
+        <p className="mt-3 max-w-3xl text-sm text-opus-steel">
           OPUS67 incorporates privacy-by-design and data-governance principles
           intended to support operation aligned with Regulation (EU) 2016/679.
         </p>
-        <p className="mt-4 text-xs uppercase tracking-wide text-slate-500">
+        <p className="mt-4 text-xs uppercase tracking-wide text-opus-muted">
           Principles the system is prepared to document — current states on{" "}
-          <Link href="/governance#data-governance" className="text-accent hover:underline">
+          <Link href="/governance#data-governance" className="text-opus-cyan hover:underline">
             Governance
           </Link>
           :
@@ -240,45 +300,39 @@ export default function HomePage() {
         <ul className="mt-3 flex flex-wrap gap-2" aria-label="GDPR principles">
           {GDPR_PRINCIPLES.map((principle) => (
             <li key={principle}>
-              <Badge tone="slate">{principle}</Badge>
+              <StatusBadge tone="neutral">{principle}</StatusBadge>
             </li>
           ))}
         </ul>
       </section>
 
+      {/* ── Modules ──────────────────────────────────────────────────── */}
       <section aria-labelledby="modules">
-        <h2 id="modules" className="text-lg font-semibold text-white">
+        <h2 id="modules" className="text-lg font-semibold text-opus-text">
           Modules
         </h2>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODULES.filter((m) => m.slug !== "dashboard").map((mod) => (
             <li key={mod.slug}>
-              <Link
+              <ModuleCard
+                slug={mod.slug as ModuleSlug}
+                name={mod.name}
+                description={mod.description}
                 href={mod.href}
-                className="block h-full rounded-lg border border-ink-700 bg-ink-900/50 p-4 transition-colors hover:border-accent/60"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-medium text-white">{mod.name}</h3>
-                  <Badge tone={statusTone[mod.status]}>
-                    {mod.status === "operational"
-                      ? "Operational"
-                      : mod.status === "configuration_required"
-                        ? "Config required"
-                        : "Planned"}
-                  </Badge>
-                </div>
-                <p className="mt-2 text-sm text-slate-400">{mod.description}</p>
-              </Link>
+                status={moduleTone[mod.status]}
+                statusLabel={moduleStatusLabel[mod.status]}
+              />
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="principles" className="rounded-lg border border-ink-700 bg-ink-900/40 p-6">
-        <h2 id="principles" className="text-lg font-semibold text-white">
+      {/* ── Design principles ────────────────────────────────────────── */}
+      <section aria-labelledby="principles" className="spectral-card p-6">
+        <h2 id="principles" className="text-lg font-semibold text-opus-text">
           Design principles
         </h2>
-        <ul className="mt-3 grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
+        <ul className="mt-3 grid gap-2 text-sm text-opus-steel sm:grid-cols-2">
           <li>Correctness before features.</li>
           <li>Security and traceability by design.</li>
           <li>No simulated functionality presented as real.</li>
@@ -288,13 +342,13 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <footer className="space-y-3 border-t border-ink-700 pt-6 text-xs text-slate-500">
+      <footer className="space-y-3 border-t border-opus-border pt-6 text-xs text-opus-muted">
         <p>{REGULATORY_DISCLAIMER}</p>
         <p>
           {AUTHOR.heading}: {AUTHOR.name}
         </p>
         <p>
-          <Link href="/legal/ai" className="text-accent hover:underline">
+          <Link href="/legal/ai" className="text-opus-cyan hover:underline">
             Artificial Intelligence Legal Notice
           </Link>
         </p>

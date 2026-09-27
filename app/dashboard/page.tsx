@@ -1,123 +1,115 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { MODULES } from "@/config/modules";
 import { getStore } from "@/lib/db/repository";
 import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { getEnvironmentStatus } from "@/lib/validation/env";
-import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { CommandHeader } from "@/components/dashboard/command-header";
+import { SystemStatus, type SystemStatusItem } from "@/components/dashboard/system-status";
+import { MetricCard } from "@/components/cards/metric-card";
+import { ModuleCard } from "@/components/cards/module-card";
+import type { ModuleSlug, ModuleStatus } from "@/config/modules";
+import type { StatusTone } from "@/components/ui/badge";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-const statusTone = {
-  operational: "green",
+const moduleTone: Record<ModuleStatus, StatusTone> = {
+  operational: "chartreuse",
   configuration_required: "amber",
-  planned: "slate",
-} as const;
+  planned: "neutral",
+};
+
+const moduleStatusLabel: Record<ModuleStatus, string> = {
+  operational: "Operational",
+  configuration_required: "Configuration required",
+  planned: "Planned",
+};
 
 export default function DashboardPage() {
   ensureBuiltInToolsRegistered();
   const store = getStore();
   const env = getEnvironmentStatus();
 
+  // Status bar: every state derives from real configuration.
+  // APPLICATION: this page rendered, so the app is up.
+  // DATABASE: memory driver is the explicit, working default (READY);
+  //           an external PostgreSQL driver is ACTIVE when selected.
+  // AI PROVIDERS: the no-op default means generation is disabled by design
+  //           (REVIEW — nothing is running); external provider = ACTIVE.
+  // GOVERNANCE: controls exist in verifiable states; several still require
+  //           assessment (REVIEW — see /governance).
+  // EVIDENCE: SHA-256 fingerprinting implemented and tested (READY).
+  const statusItems: SystemStatusItem[] = [
+    { label: "Application", state: "ACTIVE" },
+    {
+      label: "Database",
+      state: env.databaseDriver === "memory" ? "READY" : "ACTIVE",
+      note: env.databaseDriver === "memory" ? "in-memory (default)" : env.databaseDriver,
+    },
+    {
+      label: "AI Providers",
+      state: env.aiProviderDriver === "null" ? "NOT CONFIGURED" : "ACTIVE",
+      note:
+        env.aiProviderDriver === "null"
+          ? "no-op driver — generation disabled by design"
+          : env.aiProviderName,
+    },
+    { label: "Governance", state: "REVIEW", note: "assessment required" },
+    { label: "Evidence", state: "READY", note: "SHA-256 fingerprinting" },
+  ];
+
   const counts = [
-    { label: "Projects", value: store.projects.list().length, href: "/projects" },
-    { label: "Agents", value: store.agents.list().length, href: "/agents" },
-    { label: "Tools", value: store.tools.list().length, href: "/tools" },
-    { label: "Workflows", value: store.workflows.list().length, href: "/workflows" },
-    { label: "Evidence records", value: store.evidence.list().length, href: "/evidence" },
-    { label: "Executions", value: store.executions.list().length, href: "/workflows" },
+    { label: "Projects", value: store.projects.list().length, href: "/projects", accent: "var(--opus-chartreuse)" },
+    { label: "Agents", value: store.agents.list().length, href: "/agents", accent: "var(--opus-ultraviolet)" },
+    { label: "Tools", value: store.tools.list().length, href: "/tools", accent: "var(--opus-cyan)" },
+    { label: "Workflows", value: store.workflows.list().length, href: "/workflows", accent: "var(--opus-cyan)" },
+    { label: "Evidence", value: store.evidence.list().length, href: "/evidence", accent: "var(--opus-cyan)" },
+    { label: "Executions", value: store.executions.list().length, href: "/workflows", accent: "var(--opus-amber)" },
   ];
 
   return (
     <div>
-      <PageHeader
-        title="Dashboard"
-        description="Operational view of the platform. Counts reflect the live in-memory store only — nothing here is simulated."
+      <CommandHeader
+        title="AI Operations Command Surface"
+        subtitle="Operational view of the platform. Counts reflect the live store only — nothing here is simulated."
       />
 
-      <section aria-labelledby="system-state" className="mb-10">
-        <h2 id="system-state" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          System state
-        </h2>
-        <dl className="mt-3 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Application</dt>
-            <dd className="mt-1">
-              <Badge tone="green">Healthy</Badge>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Storage driver</dt>
-            <dd className="mt-1">
-              <Badge tone="green">Configured: {env.databaseDriver}</Badge>
-              <p className="mt-2 text-xs text-slate-500">
-                {env.databaseDriver === "memory"
-                  ? "Default in-memory repository active; data is process-local by design."
-                  : "External PostgreSQL selected via DATABASE_URL."}
-              </p>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">AI provider driver</dt>
-            <dd className="mt-1">
-              <Badge tone={env.aiProviderDriver === "null" ? "blue" : "green"}>
-                Configured: {env.aiProviderDriver}
-              </Badge>
-              <p className="mt-2 text-xs text-slate-500">
-                {env.aiProviderDriver === "null"
-                  ? "Local no-op default: generation disabled by design; no external AI calls."
-                  : `External provider selected: ${env.aiProviderName}.`}
-              </p>
-            </dd>
-          </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Alerts</dt>
-            <dd className="mt-1 text-sm text-slate-300">No alerts.</dd>
-          </div>
-        </dl>
-      </section>
+      <SystemStatus items={statusItems} />
 
-      <section aria-labelledby="entity-counts" className="mb-10">
-        <h2 id="entity-counts" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Registered entities
+      <section aria-labelledby="entity-counts" className="mt-10">
+        <h2
+          id="entity-counts"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Registered Entities
         </h2>
-        <ul className="mt-3 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {counts.map((c) => (
             <li key={c.label}>
-              <Link
-                href={c.href}
-                className="block rounded-lg border border-ink-700 bg-ink-900/50 p-4 hover:border-accent/60"
-              >
-                <p className="text-2xl font-semibold text-white">{c.value}</p>
-                <p className="mt-1 text-xs text-slate-500">{c.label}</p>
-              </Link>
+              <MetricCard label={c.label} value={c.value} href={c.href} accent={c.accent} />
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="module-status">
-        <h2 id="module-status" className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Module status
+      <section aria-labelledby="module-status" className="mt-10">
+        <h2
+          id="module-status"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
+        >
+          Module Status
         </h2>
-        <ul className="mt-3 divide-y divide-ink-700 rounded-lg border border-ink-700">
-          {MODULES.map((mod) => (
-            <li key={mod.slug} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <Link href={mod.href} className="text-sm font-medium text-white hover:text-accent">
-                  {mod.name}
-                </Link>
-                <p className="text-xs text-slate-500">{mod.statusNote}</p>
-              </div>
-              <Badge tone={statusTone[mod.status]}>
-                {mod.status === "operational"
-                  ? "Operational"
-                  : mod.status === "configuration_required"
-                    ? "Configuration required"
-                    : "Planned"}
-              </Badge>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MODULES.filter((m) => m.slug !== "dashboard").map((mod) => (
+            <li key={mod.slug}>
+              <ModuleCard
+                slug={mod.slug as ModuleSlug}
+                name={mod.name}
+                description={mod.statusNote}
+                href={mod.href}
+                status={moduleTone[mod.status]}
+                statusLabel={moduleStatusLabel[mod.status]}
+              />
             </li>
           ))}
         </ul>

@@ -1,5 +1,10 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * OPUS67 SPECTRAL SYSTEM — Tailwind mapping.
+ * Colors reference the CSS design tokens in app/globals.css so that
+ * dark/light theming works through a single `data-theme` attribute.
+ */
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -9,16 +14,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: {
-          950: "#0a0e14",
-          900: "#0f141c",
-          800: "#161d28",
-          700: "#1f2937",
-          600: "#2c3a4d",
-        },
-        accent: {
-          DEFAULT: "#4f7cff",
-          muted: "#2f4a9e",
+        opus: {
+          bg: "var(--opus-bg)",
+          surface: "var(--opus-surface)",
+          elevated: "var(--opus-surface-elevated)",
+          border: "var(--opus-border)",
+          "border-strong": "var(--opus-border-strong)",
+          text: "var(--opus-text)",
+          steel: "var(--opus-steel)",
+          muted: "var(--opus-muted)",
+          chartreuse: "var(--opus-chartreuse)",
+          cyan: "var(--opus-cyan)",
+          coral: "var(--opus-coral)",
+          amber: "var(--opus-amber)",
+          ultraviolet: "var(--opus-ultraviolet)",
+          "ultraviolet-hi": "var(--opus-ultraviolet-hi)",
+          success: "var(--opus-success)",
+          warning: "var(--opus-warning)",
+          danger: "var(--opus-danger)",
+          info: "var(--opus-info)",
         },
       },
       fontFamily: {
@@ -36,8 +50,8 @@ const config: Config = {
           "ui-monospace",
           "SFMono-Regular",
           "Menlo",
-          "Monaco",
           "Consolas",
+          "Liberation Mono",
           "monospace",
         ],
       },

@@ -1,30 +1,73 @@
 import { cn } from "@/lib/utils/cn";
 
-type Tone = "green" | "amber" | "slate" | "red" | "blue";
+/**
+ * OPUS67 StatusBadge — chromatic state + text label + status dot.
+ * Color is never the only indicator: the label text always accompanies it.
+ *
+ * Hierarchy (Spectral System):
+ * chartreuse = action / active system · cyan = intelligence / traceability
+ * coral = alerts / critical · amber = pending / review · ultraviolet = agents
+ */
+export type StatusTone =
+  | "chartreuse"
+  | "cyan"
+  | "coral"
+  | "amber"
+  | "ultraviolet"
+  | "neutral";
 
-const tones: Record<Tone, string> = {
-  green: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
-  amber: "border-amber-500/40 bg-amber-500/10 text-amber-300",
-  slate: "border-slate-500/40 bg-slate-500/10 text-slate-300",
-  red: "border-red-500/40 bg-red-500/10 text-red-300",
-  blue: "border-blue-500/40 bg-blue-500/10 text-blue-300",
+const toneStyles: Record<StatusTone, string> = {
+  chartreuse: "border-opus-chartreuse/40 text-opus-chartreuse",
+  cyan: "border-opus-cyan/40 text-opus-cyan",
+  coral: "border-opus-coral/50 text-opus-coral",
+  amber: "border-opus-amber/50 text-opus-amber",
+  ultraviolet: "border-opus-ultraviolet/50 text-opus-ultraviolet-hi",
+  neutral: "border-opus-border text-opus-steel",
 };
 
-export function Badge({
-  tone = "slate",
+export function StatusBadge({
+  tone = "neutral",
+  pulse = false,
   children,
+  className,
 }: {
-  tone?: Tone;
+  tone?: StatusTone;
+  /** One discreet confirmation beat (never constant). Reduced-motion safe. */
+  pulse?: boolean;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide",
-        tones[tone],
+        "inline-flex items-center gap-1.5 rounded-full border bg-opus-elevated/60 px-2.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider",
+        toneStyles[tone],
+        className,
       )}
     >
+      <span aria-hidden="true" className={cn("status-dot", pulse && "status-dot--pulse")} />
       {children}
     </span>
   );
+}
+
+/**
+ * Backwards-compatible alias during the Spectral migration.
+ * Prefer StatusBadge with an explicit spectral tone.
+ */
+export function Badge({
+  tone,
+  children,
+}: {
+  tone?: "green" | "amber" | "slate" | "red" | "blue";
+  children: React.ReactNode;
+}) {
+  const map: Record<string, StatusTone> = {
+    green: "chartreuse",
+    amber: "amber",
+    slate: "neutral",
+    red: "coral",
+    blue: "cyan",
+  };
+  return <StatusBadge tone={tone ? map[tone] : "neutral"}>{children}</StatusBadge>;
 }

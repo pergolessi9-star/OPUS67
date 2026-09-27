@@ -1,22 +1,12 @@
 import type { Metadata } from "next";
 import { getStore } from "@/lib/db/repository";
 import { getModule } from "@/lib/utils/module";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import type { EvidenceStatus } from "@/types";
+import { EvidenceRecord } from "@/components/evidence/evidence-record";
 
 export const metadata: Metadata = { title: "Evidence" };
 export const dynamic = "force-dynamic";
-
-const statusTone: Record<EvidenceStatus, "green" | "amber" | "slate" | "red" | "blue"> = {
-  UNVERIFIED: "slate",
-  SYSTEM_GENERATED: "blue",
-  SOURCE_VERIFIED: "blue",
-  HUMAN_REVIEWED: "amber",
-  APPROVED: "green",
-  REJECTED: "red",
-};
 
 export default function EvidencePage() {
   const mod = getModule("evidence");
@@ -30,26 +20,28 @@ export default function EvidencePage() {
         status={mod.status}
         statusNote={mod.statusNote}
       />
+      <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-opus-muted">
+        Evidence Ledger
+      </p>
       {evidence.length === 0 ? (
         <EmptyState
           title="No evidence records"
           description="Evidence links outputs to provenance, hashes, timestamps and human review. Records are never auto-promoted to APPROVED."
         />
       ) : (
-        <ul className="divide-y divide-ink-700 rounded-lg border border-ink-700">
+        <ol className="grid gap-3">
           {evidence.map((e) => (
-            <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-              <div>
-                <p className="text-sm font-medium text-white">{e.source}</p>
-                <p className="font-mono text-xs text-slate-500">
-                  {e.sourceType} · {e.timestamp}
-                  {e.hash ? ` · sha256:${e.hash.slice(0, 12)}…` : " · no hash"}
-                </p>
-              </div>
-              <Badge tone={statusTone[e.status]}>{e.status.replaceAll("_", " ")}</Badge>
-            </li>
+            <EvidenceRecord
+              key={e.id}
+              id={e.id}
+              source={e.source}
+              sourceType={e.sourceType}
+              timestamp={e.timestamp}
+              hash={e.hash ?? undefined}
+              status={e.status}
+            />
           ))}
-        </ul>
+        </ol>
       )}
     </div>
   );

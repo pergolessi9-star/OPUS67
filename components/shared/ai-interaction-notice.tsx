@@ -20,7 +20,7 @@ export function AiInteractionNotice() {
   return (
     <div
       role="status"
-      className="mb-4 rounded-md border border-blue-500/40 bg-blue-500/10 px-4 py-2 text-sm text-blue-200"
+      className="mb-4 border border-opus-cyan/40 bg-opus-cyan/10 px-4 py-2 text-sm text-opus-cyan"
     >
       You are interacting with an AI system.
     </div>
