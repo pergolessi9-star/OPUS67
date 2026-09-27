@@ -2,15 +2,179 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   OPUS67 SPECTRAL SYSTEM — design tokens
+   Dark is the primary experience. Light redefines the same tokens
+   (Ice / Mist surfaces, graphite typography, spectral accents preserved).
+   ========================================================================== */
+
 :root {
   color-scheme: dark;
+
+  /* Base nocturna */
+  --opus-bg: #07090d; /* Obsidian */
+  --opus-surface: #0d1117; /* Carbon */
+  --opus-elevated: #151b23; /* Graphite */
+
+  /* Neutros */
+  --opus-text: #f3f7fa; /* Ice */
+  --opus-steel: #a6b0bf; /* Steel */
+  --opus-muted: #8a94a6; /* Muted (AA-safe on Obsidian) */
+  --opus-border: rgba(166, 176, 191, 0.14);
+  --opus-border-strong: rgba(166, 176, 191, 0.32);
+
+  /* Acentos espectrales */
+  --opus-chartreuse: #c7ff38; /* acción / sistema activo */
+  --opus-chartreuse-dim: rgba(199, 255, 56, 0.1);
+  --opus-cyan: #18e7e7; /* inteligencia / datos / trazabilidad */
+  --opus-cyan-dim: rgba(24, 231, 231, 0.1);
+  --opus-coral: #ff4d67; /* alertas / decisiones críticas */
+  --opus-coral-dim: rgba(255, 77, 103, 0.12);
+  --opus-amber: #ffb020; /* pendiente / revisión */
+  --opus-amber-dim: rgba(255, 176, 32, 0.1);
+  --opus-uv: #9b85ff; /* agentes / modelos (texto AA-safe) */
+  --opus-uv-deep: #7857ff; /* ultravioleta de marca (bordes, grandes) */
+  --opus-uv-dim: rgba(120, 87, 255, 0.14);
+
+  /* Semánticos */
+  --opus-success: var(--opus-chartreuse);
+  --opus-warning: var(--opus-amber);
+  --opus-danger: var(--opus-coral);
+  --opus-info: var(--opus-cyan);
+
+  /* Forma y movimiento */
+  --opus-radius: 10px;
+  --opus-shadow: 0 1px 0 rgba(243, 247, 250, 0.03) inset;
+  --opus-transition: 160ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --opus-bg: #f3f7fa; /* Ice */
+  --opus-surface: #ffffff;
+  --opus-elevated: #e7edf3; /* Mist */
+
+  --opus-text: #151b23; /* Graphite typography */
+  --opus-steel: #3d4a5c;
+  --opus-muted: #55617a;
+  --opus-border: rgba(21, 27, 35, 0.14);
+  --opus-border-strong: rgba(21, 27, 35, 0.3);
+
+  /* Acentos espectrales — mismos matices, profundidad AA (≥4.5:1) sobre Ice */
+  --opus-chartreuse: #4a7000;
+  --opus-chartreuse-dim: rgba(74, 112, 0, 0.12);
+  --opus-cyan: #056e75;
+  --opus-cyan-dim: rgba(5, 110, 117, 0.1);
+  --opus-coral: #c81e3a;
+  --opus-coral-dim: rgba(200, 30, 58, 0.1);
+  --opus-amber: #8a5a00;
+  --opus-amber-dim: rgba(138, 90, 0, 0.12);
+  --opus-uv: #5f3fe0;
+  --opus-uv-deep: #6644e0;
+  --opus-uv-dim: rgba(95, 63, 224, 0.12);
+
+  --opus-shadow: 0 1px 2px rgba(21, 27, 35, 0.06);
 }
 
 body {
-  @apply bg-ink-950 text-slate-200 antialiased;
+  @apply bg-obsidian text-ice antialiased;
 }
 
 /* Visible keyboard focus (WCAG 2.4.7) */
 :focus-visible {
-  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-ink-950;
+  outline: 2px solid var(--opus-chartreuse);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   OPUS67 SPECTRAL LINE — firma visual del producto.
+   Línea luminosa extremadamente fina; transición discreta
+   chartreuse → cyan → ultraviolet → coral. Nunca grandes gradientes.
+   ========================================================================== */
+
+.spectral-line {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    90deg,
+    var(--opus-chartreuse),
+    var(--opus-cyan),
+    var(--opus-uv-deep),
+    var(--opus-coral)
+  );
+}
+
+.spectral-line-v {
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--opus-chartreuse),
+    var(--opus-cyan),
+    var(--opus-uv-deep),
+    var(--opus-coral)
+  );
+}
+
+/* Spectral Cards: superficie translúcida, borde fino, micro-highlight
+   superior con el acento del módulo (--card-accent), hover sutil. */
+.spectral-card {
+  position: relative;
+  background: var(--opus-surface);
+  border: 1px solid var(--opus-border);
+  border-radius: var(--opus-radius);
+  box-shadow: var(--opus-shadow);
+  transition:
+    border-color var(--opus-transition),
+    transform var(--opus-transition),
+    background-color var(--opus-transition);
+}
+
+.spectral-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto -1px;
+  height: 1px;
+  border-radius: var(--opus-radius) var(--opus-radius) 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--card-accent, var(--opus-cyan)),
+    transparent
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.spectral-card:hover {
+  border-color: var(--opus-border-strong);
+  transform: translateY(-1px);
+}
+
+/* Pulso de estado — microinteracción discreta, solo puntos de estado. */
+@keyframes opus-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.status-pulse {
+  animation: opus-pulse 2.4s ease-in-out infinite;
+}
+
+/* Respeto estricto a prefers-reduced-motion (WCAG 2.3.3 / 2.2 AA). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
