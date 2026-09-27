@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MODULES } from "@/config/modules";
 import { getStore } from "@/lib/db/repository";
+import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { getEnvironmentStatus } from "@/lib/validation/env";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
@@ -16,6 +17,7 @@ const statusTone = {
 } as const;
 
 export default function DashboardPage() {
+  ensureBuiltInToolsRegistered();
   const store = getStore();
   const env = getEnvironmentStatus();
 
@@ -47,24 +49,26 @@ export default function DashboardPage() {
             </dd>
           </div>
           <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">Database (PostgreSQL)</dt>
+            <dt className="text-xs text-slate-500">Storage driver</dt>
             <dd className="mt-1">
-              <Badge tone={env.database === "configured" ? "green" : "amber"}>
-                {env.database === "configured" ? "Configured" : "Not configured"}
-              </Badge>
+              <Badge tone="green">Configured: {env.databaseDriver}</Badge>
               <p className="mt-2 text-xs text-slate-500">
-                Persistence adapter pending; current data is process-local.
+                {env.databaseDriver === "memory"
+                  ? "Default in-memory repository active; data is process-local by design."
+                  : "External PostgreSQL selected via DATABASE_URL."}
               </p>
             </dd>
           </div>
           <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-4">
-            <dt className="text-xs text-slate-500">AI provider</dt>
+            <dt className="text-xs text-slate-500">AI provider driver</dt>
             <dd className="mt-1">
-              <Badge tone={env.aiProvider === "configured" ? "green" : "amber"}>
-                {env.aiProvider === "configured" ? env.aiProviderName : "Not configured"}
+              <Badge tone={env.aiProviderDriver === "null" ? "blue" : "green"}>
+                Configured: {env.aiProviderDriver}
               </Badge>
               <p className="mt-2 text-xs text-slate-500">
-                Generation is disabled until server-side credentials are provided.
+                {env.aiProviderDriver === "null"
+                  ? "Local no-op default: generation disabled by design; no external AI calls."
+                  : `External provider selected: ${env.aiProviderName}.`}
               </p>
             </dd>
           </div>
