@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-ink-700 py-6">
@@ -5,7 +7,12 @@ export function SiteFooter() {
         <p>
           <span className="font-mono tracking-widest">OPUS67</span> — modular AI systems platform.
         </p>
-        <p>Evidence · Traceability · Governance</p>
+        <p>
+          <Link href="/legal/ai" className="hover:text-slate-300 hover:underline">
+            AI Legal Notice
+          </Link>{" "}
+          · Evidence · Traceability · Governance
+        </p>
       </div>
     </footer>
   );
