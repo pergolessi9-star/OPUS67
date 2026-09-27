@@ -1,32 +1,33 @@
-import { SpectralLine } from "@/components/opus/spectral-line";
-
 /**
- * EmptyState — OPUS67 is an MVP: empty states are first-class screens.
- * They state clearly what exists (nothing), why, and what the user would
- * need to configure. Data is never faked; demo content would be marked
- * DEMO DATA (none is used).
+ * OPUS67 EmptyState — MVP-grade empty states: they state clearly what is
+ * missing and what must be configured. Never filled with invented data.
  */
 export function EmptyState({
   title,
   description,
-  hint,
+  action,
 }: {
   title: string;
   description: string;
-  /** Optional "what to configure next" guidance. */
-  hint?: string;
+  action?: { label: string; href: string };
 }) {
   return (
-    <div className="spectral-card px-6 py-12 text-center">
-      <p className="font-mono text-xs uppercase tracking-[0.25em] text-steel">{title}</p>
-      <div className="mx-auto mt-4 w-24">
-        <SpectralLine />
-      </div>
-      <p className="mx-auto mt-4 max-w-xl text-sm text-muted">{description}</p>
-      {hint ? (
-        <p className="mx-auto mt-3 max-w-xl font-mono text-xs text-ion">
-          → {hint}
-        </p>
+    <div className="spectral-card relative overflow-hidden px-6 py-12 text-center">
+      <div
+        aria-hidden="true"
+        className="mx-auto mb-4 h-px w-24 bg-gradient-to-r from-transparent via-opus-cyan to-transparent"
+      />
+      <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-opus-text">
+        {title}
+      </p>
+      <p className="mx-auto mt-2 max-w-md text-sm text-opus-muted">{description}</p>
+      {action ? (
+        <a
+          href={action.href}
+          className="mt-4 inline-block rounded-md border border-opus-border px-3 py-1.5 font-mono text-xs uppercase tracking-wider text-opus-cyan transition-colors hover:border-opus-cyan/50"
+        >
+          {action.label}
+        </a>
       ) : null}
     </div>
   );

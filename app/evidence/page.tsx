@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { getStore } from "@/lib/db/repository";
 import { getModule } from "@/lib/utils/module";
-import { CommandHeader } from "@/components/opus/command-header";
-import { EvidenceRecord } from "@/components/opus/evidence-record";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { EvidenceRecord } from "@/components/evidence/evidence-record";
 
 export const metadata: Metadata = { title: "Evidence" };
 export const dynamic = "force-dynamic";
@@ -14,38 +14,35 @@ export default function EvidencePage() {
 
   return (
     <div>
-      <CommandHeader
-        eyebrow="OPUS67 // EVIDENCE"
-        title="Evidence Ledger"
-        description="Traceability records with provenance, SHA-256 hashes, timestamps and explicit human review states. Records are never auto-promoted to APPROVED; no immutability is claimed."
-        status="Operational"
-        statusTone="active"
+      <PageHeader
+        title={mod.name}
+        description={mod.description}
+        status={mod.status}
+        statusNote={mod.statusNote}
       />
+      <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-opus-muted">
+        Evidence Ledger
+      </p>
       {evidence.length === 0 ? (
         <EmptyState
-          title="Evidence ledger empty"
-          description="Evidence links outputs to provenance, hashes, timestamps and human review. No records exist yet — nothing is auto-generated or backfilled."
-          hint="Records appear here when evidence is registered through the platform."
+          title="No evidence records"
+          description="Evidence links outputs to provenance, hashes, timestamps and human review. Records are never auto-promoted to APPROVED."
         />
       ) : (
-        <>
-          <div
-            aria-hidden="true"
-            className="hidden grid-cols-[3rem_8rem_1fr_auto] gap-x-4 px-3 pb-2 font-mono text-[10px] uppercase tracking-widest text-muted sm:grid"
-          >
-            <span>Entry</span>
-            <span>Timestamp</span>
-            <span>Source / Hash</span>
-            <span className="text-right">Status · Human review</span>
-          </div>
-          <ol className="spectral-card">
-            {evidence.map((e, i) => (
-              <EvidenceRecord key={e.id} record={e} index={i} />
-            ))}
-          </ol>
-        </>
+        <ol className="grid gap-3">
+          {evidence.map((e) => (
+            <EvidenceRecord
+              key={e.id}
+              id={e.id}
+              source={e.source}
+              sourceType={e.sourceType}
+              timestamp={e.timestamp}
+              hash={e.hash ?? undefined}
+              status={e.status}
+            />
+          ))}
+        </ol>
       )}
-      <p className="mt-6 text-xs text-muted">{mod.statusNote}</p>
     </div>
   );
 }

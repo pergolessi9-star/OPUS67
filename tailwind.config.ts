@@ -2,11 +2,8 @@ import type { Config } from "tailwindcss";
 
 /**
  * OPUS67 SPECTRAL SYSTEM — Tailwind mapping.
- *
- * Every color maps to a design token (CSS custom property) defined in
- * app/globals.css. Components must use these semantic classes — no
- * hardcoded hex values, no default palette colors for UI surfaces.
- * Dark is the primary experience; [data-theme="light"] redefines the tokens.
+ * Colors reference the CSS design tokens in app/globals.css so that
+ * dark/light theming works through a single `data-theme` attribute.
  */
 const config: Config = {
   content: [
@@ -17,37 +14,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base nocturna
-        obsidian: "var(--opus-bg)",
-        carbon: "var(--opus-surface)",
-        graphite: "var(--opus-elevated)",
-        // Neutros
-        ice: "var(--opus-text)",
-        steel: "var(--opus-steel)",
-        muted: "var(--opus-muted)",
-        line: "var(--opus-border)",
-        "line-strong": "var(--opus-border-strong)",
-        // Acentos espectrales (jerarquía: acción / datos / alerta / revisión / agentes)
-        chartreuse: {
-          DEFAULT: "var(--opus-chartreuse)",
-          dim: "var(--opus-chartreuse-dim)",
-        },
-        ion: {
-          DEFAULT: "var(--opus-cyan)",
-          dim: "var(--opus-cyan-dim)",
-        },
-        coral: {
-          DEFAULT: "var(--opus-coral)",
-          dim: "var(--opus-coral-dim)",
-        },
-        solar: {
-          DEFAULT: "var(--opus-amber)",
-          dim: "var(--opus-amber-dim)",
-        },
-        uv: {
-          DEFAULT: "var(--opus-uv)",
-          deep: "var(--opus-uv-deep)",
-          dim: "var(--opus-uv-dim)",
+        opus: {
+          bg: "var(--opus-bg)",
+          surface: "var(--opus-surface)",
+          elevated: "var(--opus-surface-elevated)",
+          border: "var(--opus-border)",
+          "border-strong": "var(--opus-border-strong)",
+          text: "var(--opus-text)",
+          steel: "var(--opus-steel)",
+          muted: "var(--opus-muted)",
+          chartreuse: "var(--opus-chartreuse)",
+          cyan: "var(--opus-cyan)",
+          coral: "var(--opus-coral)",
+          amber: "var(--opus-amber)",
+          ultraviolet: "var(--opus-ultraviolet)",
+          "ultraviolet-hi": "var(--opus-ultraviolet-hi)",
+          success: "var(--opus-success)",
+          warning: "var(--opus-warning)",
+          danger: "var(--opus-danger)",
+          info: "var(--opus-info)",
         },
       },
       fontFamily: {
@@ -65,16 +50,10 @@ const config: Config = {
           "ui-monospace",
           "SFMono-Regular",
           "Menlo",
-          "Monaco",
           "Consolas",
+          "Liberation Mono",
           "monospace",
         ],
-      },
-      borderRadius: {
-        opus: "var(--opus-radius)",
-      },
-      transitionTimingFunction: {
-        opus: "cubic-bezier(0.2, 0.6, 0.2, 1)",
       },
     },
   },

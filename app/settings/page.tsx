@@ -2,11 +2,28 @@ import type { Metadata } from "next";
 import { getModule } from "@/lib/utils/module";
 import { getEnvironmentStatus } from "@/lib/validation/env";
 import { PLATFORM } from "@/config/platform";
-import { CommandHeader } from "@/components/opus/command-header";
-import { StatusBadge } from "@/components/opus/status-badge";
+import { StatusBadge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/shared/page-header";
 
 export const metadata: Metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
+
+function ConfigRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-opus-border/60 px-4 py-3 last:border-b-0">
+      <dt className="font-mono text-[11px] uppercase tracking-[0.2em] text-opus-muted">
+        {label}
+      </dt>
+      <dd className="text-right">{children}</dd>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const mod = getModule("settings");
@@ -14,70 +31,60 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <CommandHeader
-        eyebrow="OPUS67 // SETTINGS"
+      <PageHeader
         title={mod.name}
         description={mod.description}
-        status="Operational"
-        statusTone="active"
+        status={mod.status}
+        statusNote={mod.statusNote}
       />
 
       <section aria-labelledby="platform-config">
         <h2
           id="platform-config"
-          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
         >
-          Platform configuration
+          Platform Configuration
         </h2>
-        <p className="mt-1 text-xs text-muted">
+        <p className="mt-2 text-xs text-opus-muted">
           OPUS67 is always fully configured: every driver has an explicit working default.
           External services are optional upgrades selected via server-side environment
           variables. Values are never displayed — only configuration state.
         </p>
-        <dl className="spectral-card mt-3 divide-y divide-line">
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-            <dt className="text-sm text-steel">Product stage</dt>
-            <dd>
-              <StatusBadge tone="review">
-                {PLATFORM.stage} — {PLATFORM.stageLabel}
-              </StatusBadge>
-            </dd>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-            <dt className="text-sm text-steel">Storage driver</dt>
-            <dd className="text-right">
-              <StatusBadge tone="active">Configured: {env.databaseDriver}</StatusBadge>
-              <p className="mt-1 max-w-md text-xs text-muted">
-                {env.databaseDriver === "memory"
-                  ? "Default in-memory repository active (process-local, non-persistent by design). PostgreSQL optional via DATABASE_URL."
-                  : "External PostgreSQL selected via DATABASE_URL."}
-              </p>
-            </dd>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
-            <dt className="text-sm text-steel">AI provider driver</dt>
-            <dd className="text-right">
-              <StatusBadge tone={env.aiProviderDriver === "null" ? "info" : "active"}>
-                Configured: {env.aiProviderDriver}
-              </StatusBadge>
-              <p className="mt-1 max-w-md text-xs text-muted">
-                {env.aiProviderDriver === "null"
-                  ? "Local no-op provider active: generation disabled by design, no external AI calls. External provider optional via AI_PROVIDER + server-side key."
-                  : `External provider selected: ${env.aiProviderName}.`}
-              </p>
-            </dd>
-          </div>
+        <dl className="spectral-card mt-4">
+          <ConfigRow label="Product Stage">
+            <StatusBadge tone="amber">
+              {PLATFORM.stage} · {PLATFORM.stageLabel}
+            </StatusBadge>
+          </ConfigRow>
+          <ConfigRow label="Storage Driver">
+            <StatusBadge tone="chartreuse">Configured · {env.databaseDriver}</StatusBadge>
+            <p className="mt-1 max-w-md text-xs text-opus-muted">
+              {env.databaseDriver === "memory"
+                ? "Default in-memory repository active (process-local, non-persistent by design). PostgreSQL optional via DATABASE_URL."
+                : "External PostgreSQL selected via DATABASE_URL."}
+            </p>
+          </ConfigRow>
+          <ConfigRow label="AI Provider Driver">
+            <StatusBadge tone={env.aiProviderDriver === "null" ? "cyan" : "chartreuse"}>
+              Configured · {env.aiProviderDriver}
+            </StatusBadge>
+            <p className="mt-1 max-w-md text-xs text-opus-muted">
+              {env.aiProviderDriver === "null"
+                ? "Local no-op provider active: generation disabled by design, no external AI calls. External provider optional via AI_PROVIDER + server-side key."
+                : `External provider selected: ${env.aiProviderName}.`}
+            </p>
+          </ConfigRow>
         </dl>
       </section>
 
-      <section aria-labelledby="auth-note" className="mt-8">
+      <section aria-labelledby="auth-note" className="mt-10">
         <h2
           id="auth-note"
-          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
         >
-          Authentication &amp; authorisation
+          Authentication &amp; Authorisation
         </h2>
-        <p className="mt-2 max-w-2xl text-sm text-steel">
+        <p className="mt-2 text-sm text-opus-steel">
           Not implemented yet. RBAC roles (OWNER, ADMIN, OPERATOR, REVIEWER, VIEWER) are
           modelled in the type system for a future milestone — no fictitious
           authorisation is enforced or claimed. See docs/SECURITY.md.

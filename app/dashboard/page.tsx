@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { MODULES } from "@/config/modules";
 import { getStore } from "@/lib/db/repository";
 import { ensureBuiltInToolsRegistered } from "@/lib/tools/built-in-tools";
 import { getEnvironmentStatus } from "@/lib/validation/env";
-import { CommandHeader } from "@/components/opus/command-header";
-import { MetricCard } from "@/components/opus/metric-card";
-import { StatusBadge, type StatusTone } from "@/components/opus/status-badge";
-import { SystemStatusBar, type SystemState } from "@/components/opus/system-status";
+import { CommandHeader } from "@/components/dashboard/command-header";
+import { SystemStatus, type SystemStatusItem } from "@/components/dashboard/system-status";
+import { MetricCard } from "@/components/cards/metric-card";
+import { ModuleCard } from "@/components/cards/module-card";
+import type { ModuleSlug, ModuleStatus } from "@/config/modules";
+import type { StatusTone } from "@/components/ui/badge";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-const moduleStatusTone: Record<string, StatusTone> = {
-  operational: "active",
-  configuration_required: "review",
+const moduleTone: Record<ModuleStatus, StatusTone> = {
+  operational: "chartreuse",
+  configuration_required: "amber",
   planned: "neutral",
+};
+
+const moduleStatusLabel: Record<ModuleStatus, string> = {
+  operational: "Operational",
+  configuration_required: "Configuration required",
+  planned: "Planned",
 };
 
 export default function DashboardPage() {
@@ -23,105 +30,86 @@ export default function DashboardPage() {
   const store = getStore();
   const env = getEnvironmentStatus();
 
-  /**
-   * Every state below is derived from real configuration:
-   *  - APPLICATION: process healthy (this page is being served).
-   *  - DATABASE: active driver reported by the environment layer.
-   *  - AI PROVIDERS: "null" no-op driver = configured standby (READY),
-   *    generation disabled by design; an external driver reports ACTIVE.
-   *  - GOVERNANCE: regulatory assessment is ongoing (config/governance.ts).
-   *  - EVIDENCE: module operational (SHA-256 fingerprinting implemented).
-   */
-  const statusItems: { label: string; state: SystemState; detail?: string }[] = [
-    { label: "APPLICATION", state: "ACTIVE", detail: "healthy" },
+  // Status bar: every state derives from real configuration.
+  // APPLICATION: this page rendered, so the app is up.
+  // DATABASE: memory driver is the explicit, working default (READY);
+  //           an external PostgreSQL driver is ACTIVE when selected.
+  // AI PROVIDERS: the no-op default means generation is disabled by design
+  //           (REVIEW — nothing is running); external provider = ACTIVE.
+  // GOVERNANCE: controls exist in verifiable states; several still require
+  //           assessment (REVIEW — see /governance).
+  // EVIDENCE: SHA-256 fingerprinting implemented and tested (READY).
+  const statusItems: SystemStatusItem[] = [
+    { label: "Application", state: "ACTIVE" },
     {
-      label: "DATABASE",
-      state: "ACTIVE",
-      detail: `driver: ${env.databaseDriver}`,
+      label: "Database",
+      state: env.databaseDriver === "memory" ? "READY" : "ACTIVE",
+      note: env.databaseDriver === "memory" ? "in-memory (default)" : env.databaseDriver,
     },
     {
-      label: "AI PROVIDERS",
-      state: env.aiProviderDriver === "null" ? "READY" : "ACTIVE",
-      detail:
+      label: "AI Providers",
+      state: env.aiProviderDriver === "null" ? "NOT CONFIGURED" : "ACTIVE",
+      note:
         env.aiProviderDriver === "null"
-          ? "driver: null (no-op, by design)"
-          : `driver: ${env.aiProviderDriver}`,
+          ? "no-op driver — generation disabled by design"
+          : env.aiProviderName,
     },
-    { label: "GOVERNANCE", state: "REVIEW", detail: "assessment ongoing" },
-    { label: "EVIDENCE", state: "ACTIVE", detail: "sha-256 ledger" },
+    { label: "Governance", state: "REVIEW", note: "assessment required" },
+    { label: "Evidence", state: "READY", note: "SHA-256 fingerprinting" },
   ];
 
   const counts = [
-    { label: "Projects", value: store.projects.list().length, href: "/projects", accent: "var(--opus-steel)" },
-    { label: "Agents", value: store.agents.list().length, href: "/agents", accent: "var(--opus-uv-deep)" },
-    { label: "Tools", value: store.tools.list().length, href: "/tools", accent: "var(--opus-chartreuse)" },
-    { label: "Workflows", value: store.workflows.list().length, href: "/workflows", accent: "var(--opus-amber)" },
+    { label: "Projects", value: store.projects.list().length, href: "/projects", accent: "var(--opus-chartreuse)" },
+    { label: "Agents", value: store.agents.list().length, href: "/agents", accent: "var(--opus-ultraviolet)" },
+    { label: "Tools", value: store.tools.list().length, href: "/tools", accent: "var(--opus-cyan)" },
+    { label: "Workflows", value: store.workflows.list().length, href: "/workflows", accent: "var(--opus-cyan)" },
     { label: "Evidence", value: store.evidence.list().length, href: "/evidence", accent: "var(--opus-cyan)" },
-    { label: "Executions", value: store.executions.list().length, href: "/workflows", accent: "var(--opus-coral)" },
+    { label: "Executions", value: store.executions.list().length, href: "/workflows", accent: "var(--opus-amber)" },
   ];
 
   return (
     <div>
       <CommandHeader
-        eyebrow="OPUS67 // SYSTEM STATUS"
         title="AI Operations Command Surface"
-        description="Operational view of the platform. Counts reflect the live in-memory store only — nothing here is simulated."
-        status="MVP"
-        statusTone="review"
+        subtitle="Operational view of the platform. Counts reflect the live store only — nothing here is simulated."
       />
 
-      <section aria-labelledby="system-status" className="mb-10">
-        <h2 id="system-status" className="sr-only">
-          System status
-        </h2>
-        <SystemStatusBar items={statusItems} />
-      </section>
+      <SystemStatus items={statusItems} />
 
-      <section aria-labelledby="entity-counts" className="mb-10">
+      <section aria-labelledby="entity-counts" className="mt-10">
         <h2
           id="entity-counts"
-          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
         >
-          Registered entities
+          Registered Entities
         </h2>
-        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {counts.map((c) => (
             <li key={c.label}>
-              <MetricCard href={c.href} label={c.label} value={c.value} accent={c.accent} />
+              <MetricCard label={c.label} value={c.value} href={c.href} accent={c.accent} />
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="module-status">
+      <section aria-labelledby="module-status" className="mt-10">
         <h2
           id="module-status"
-          className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-muted"
+          className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-opus-muted"
         >
-          Module status
+          Module Status
         </h2>
-        <ul className="spectral-card mt-3 divide-y divide-line">
-          {MODULES.map((mod) => (
-            <li
-              key={mod.slug}
-              className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
-            >
-              <div className="min-w-0">
-                <Link
-                  href={mod.href}
-                  className="text-sm font-medium text-ice hover:text-ion"
-                >
-                  {mod.name}
-                </Link>
-                <p className="truncate text-xs text-muted">{mod.statusNote}</p>
-              </div>
-              <StatusBadge tone={moduleStatusTone[mod.status]}>
-                {mod.status === "operational"
-                  ? "Operational"
-                  : mod.status === "configuration_required"
-                    ? "Configuration required"
-                    : "Planned"}
-              </StatusBadge>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MODULES.filter((m) => m.slug !== "dashboard").map((mod) => (
+            <li key={mod.slug}>
+              <ModuleCard
+                slug={mod.slug as ModuleSlug}
+                name={mod.name}
+                description={mod.statusNote}
+                href={mod.href}
+                status={moduleTone[mod.status]}
+                statusLabel={moduleStatusLabel[mod.status]}
+              />
             </li>
           ))}
         </ul>

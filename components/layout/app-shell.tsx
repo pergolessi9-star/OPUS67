@@ -3,203 +3,196 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { MODULES } from "@/config/modules";
-import { cn } from "@/lib/utils/cn";
-import { OpusLogo } from "@/components/opus/opus-logo";
-import { ThemeToggle } from "@/components/opus/theme-toggle";
-import {
-  AgentsIcon,
-  CloseIcon,
-  DashboardIcon,
-  EvidenceIcon,
-  GovernanceIcon,
-  LegalIcon,
-  MenuIcon,
-  ProjectsIcon,
-  SettingsIcon,
-  ToolsIcon,
-  WorkflowsIcon,
-} from "@/components/opus/icons";
+import { OpusLogo } from "@/components/brand/opus-logo";
+import { ModuleGlyph } from "@/components/brand/module-glyph";
+import { SpectralLine } from "@/components/spectral/spectral-line";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { MODULES, MODULE_ACCENTS } from "@/config/modules";
 
 /**
- * AppShell — OPUS67 navigation shell.
- * Sidebar: persistent on desktop (lg, 240px), compact on tablet (md, 64px),
- * drawer on mobile. Active route carries the Spectral Line on its edge.
- * Module status dots reflect the REAL registry state (config/modules.ts).
+ * OPUS67 AppShell — persistent navigation structure.
+ * Desktop (≥1024px): full sidebar. Tablet (768–1023px): compact icon rail.
+ * Mobile (<768px): top bar + drawer. Never hides module names from
+ * assistive technology: labels stay in the DOM, visually collapsed on
+ * tablet only.
  */
-
-const NAV_ICONS: Record<string, (props: { className?: string }) => React.ReactNode> = {
-  dashboard: DashboardIcon,
-  projects: ProjectsIcon,
-  agents: AgentsIcon,
-  tools: ToolsIcon,
-  workflows: WorkflowsIcon,
-  evidence: EvidenceIcon,
-  governance: GovernanceIcon,
-  settings: SettingsIcon,
-};
-
-const STATUS_DOT: Record<string, string> = {
-  operational: "bg-chartreuse",
-  configuration_required: "bg-solar",
-  planned: "bg-steel",
-};
-
-function NavItems({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
-  return (
-    <ul className="space-y-1">
-      {MODULES.map((mod) => {
-        const Icon = NAV_ICONS[mod.slug] ?? DashboardIcon;
-        const active = pathname === mod.href || pathname.startsWith(`${mod.href}/`);
-        return (
-          <li key={mod.slug}>
-            <Link
-              href={mod.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              title={mod.name}
-              className={cn(
-                "group relative flex min-h-11 items-center gap-3 rounded-opus px-3 py-2.5 text-sm transition-colors duration-150 ease-opus",
-                active
-                  ? "bg-graphite text-ice"
-                  : "text-steel hover:bg-graphite/60 hover:text-ice",
-              )}
-            >
-              {/* Spectral Line on the active edge */}
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "absolute inset-y-2 left-0 w-px",
-                  active ? "spectral-line-v" : "bg-transparent",
-                )}
-              />
-              <span className={cn("shrink-0", active ? "text-chartreuse" : "text-muted group-hover:text-steel")}>
-                <Icon />
-              </span>
-              <span className="min-w-0 flex-1 truncate md:max-lg:hidden">{mod.name}</span>
-              <span
-                aria-hidden="true"
-                title={`Module status: ${mod.status.replaceAll("_", " ")}`}
-                className={cn(
-                  "h-1.5 w-1.5 shrink-0 rounded-full md:max-lg:absolute md:max-lg:right-1 md:max-lg:top-1",
-                  STATUS_DOT[mod.status] ?? "bg-steel",
-                )}
-              />
-              <span className="sr-only">{` (${mod.status.replaceAll("_", " ")})`}</span>
-            </Link>
-          </li>
-        );
-      })}
-      <li>
-        <Link
-          href="/legal/ai"
-          onClick={onNavigate}
-          title="AI Legal Notice"
-          className={cn(
-            "flex min-h-11 items-center gap-3 rounded-opus px-3 py-2.5 text-sm transition-colors duration-150 ease-opus",
-            pathname === "/legal/ai"
-              ? "bg-graphite text-ice"
-              : "text-steel hover:bg-graphite/60 hover:text-ice",
-          )}
-        >
-          <span className="shrink-0 text-muted">
-            <LegalIcon />
-          </span>
-          <span className="truncate md:max-lg:hidden">AI Legal Notice</span>
-        </Link>
-      </li>
-    </ul>
-  );
-}
-
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  return (
-    <div className="flex min-h-screen">
-      {/* Mobile topbar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-carbon/95 px-4 backdrop-blur md:hidden">
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Open navigation"
-          aria-expanded={drawerOpen}
-          aria-controls="opus-sidebar"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-opus text-steel hover:text-ice"
-        >
-          <MenuIcon />
-        </button>
-        <OpusLogo />
-        <ThemeToggle />
-      </div>
+  const isActive = (href: string) =>
+    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
 
-      {/* Drawer overlay (mobile) */}
-      {drawerOpen ? (
-        <button
-          type="button"
-          aria-label="Close navigation"
-          onClick={() => setDrawerOpen(false)}
-          className="fixed inset-0 z-40 bg-obsidian/70 md:hidden"
-        />
-      ) : null}
+  function NavList({ compact }: { compact: boolean }) {
+    return (
+      <ul className="flex flex-col gap-0.5">
+        {MODULES.map((mod) => {
+          const active = isActive(mod.href);
+          return (
+            <li key={mod.slug}>
+              <Link
+                href={mod.href}
+                aria-current={active ? "page" : undefined}
+                title={compact ? mod.name : undefined}
+                onClick={() => setDrawerOpen(false)}
+                className={`group relative flex items-center gap-3 px-3 py-2 transition-colors ${
+                  compact ? "justify-center" : ""
+                } ${
+                  active
+                    ? "bg-opus-elevated text-opus-text"
+                    : "text-opus-steel hover:text-opus-text"
+                }`}
+              >
+                {/* Spectral edge on the active item */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-1 left-0 w-px"
+                  style={{
+                    background: active
+                      ? `linear-gradient(to bottom, var(--opus-chartreuse), var(--opus-cyan), var(--opus-ultraviolet), var(--opus-coral))`
+                      : "transparent",
+                  }}
+                />
+                <ModuleGlyph slug={mod.slug as keyof typeof MODULE_ACCENTS} size={16} />
+                <span
+                  className={`font-mono text-[11px] uppercase tracking-[0.16em] ${
+                    compact ? "sr-only" : ""
+                  }`}
+                >
+                  {mod.name}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 
-      {/* Sidebar: drawer on mobile, compact on tablet, persistent on desktop */}
-      <aside
-        id="opus-sidebar"
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-line bg-carbon transition-transform duration-200 ease-opus md:sticky md:top-0 md:z-auto md:h-screen md:w-16 md:translate-x-0 lg:w-60",
-          drawerOpen ? "translate-x-0" : "-translate-x-full",
-        )}
+  const footer = (
+    <div className="mt-auto border-t border-opus-border px-3 py-4">
+      <Link
+        href="/legal/ai"
+        onClick={() => setDrawerOpen(false)}
+        className="block text-[11px] text-opus-muted transition-colors hover:text-opus-steel hover:underline"
       >
-        <div className="flex h-14 items-center justify-between border-b border-line px-4">
-          <span className="md:max-lg:hidden">
-            <OpusLogo />
-          </span>
-          <span className="hidden md:max-lg:block">
-            <OpusLogo monogram />
-          </span>
+        AI Legal Notice
+      </Link>
+      <p className="mt-2 text-[10px] leading-relaxed text-opus-muted">
+        Evidence · Traceability · Governance
+      </p>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-opus-bg text-opus-text">
+      {/* Mobile top bar */}
+      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-opus-border bg-opus-bg/95 px-4 backdrop-blur md:hidden">
+        <button
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded={drawerOpen}
+          onClick={() => setDrawerOpen(true)}
+          className="flex h-8 w-8 items-center justify-center border border-opus-border text-opus-steel hover:border-opus-cyan hover:text-opus-cyan"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+        <Link href="/" aria-label="OPUS67 home">
+          <OpusLogo variant="monogram" />
+        </Link>
+        <ThemeToggle />
+      </header>
+
+      {/* Mobile drawer */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
           <button
             type="button"
+            aria-label="Close navigation menu"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setDrawerOpen(false)}
-            aria-label="Close navigation"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-opus text-steel hover:text-ice md:hidden"
+          />
+          <nav
+            aria-label="Primary"
+            className="absolute inset-y-0 left-0 flex w-60 flex-col border-r border-opus-border bg-opus-surface"
           >
-            <CloseIcon />
-          </button>
+            <div className="flex h-12 items-center justify-between border-b border-opus-border px-4">
+              <Link href="/" aria-label="OPUS67 home" onClick={() => setDrawerOpen(false)}>
+                <OpusLogo variant="wordmark" />
+              </Link>
+              <button
+                type="button"
+                aria-label="Close navigation menu"
+                onClick={() => setDrawerOpen(false)}
+                className="flex h-8 w-8 items-center justify-center border border-opus-border text-opus-steel hover:border-opus-cyan hover:text-opus-cyan"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </div>
+            <SpectralLine />
+            <div className="py-3">
+              <NavList compact={false} />
+            </div>
+            {footer}
+          </nav>
         </div>
-        <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3 py-4">
-          <NavItems onNavigate={() => setDrawerOpen(false)} />
-        </nav>
-        <div className="hidden items-center justify-between border-t border-line px-4 py-3 md:flex">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted md:max-lg:hidden">
-            MVP
+      )}
+
+      {/* Sidebar: compact rail on tablet, full on desktop */}
+      <nav
+        aria-label="Primary"
+        className="fixed inset-y-0 left-0 z-30 hidden w-16 flex-col border-r border-opus-border bg-opus-surface md:flex lg:w-60"
+      >
+        <div className="flex h-14 items-center border-b border-opus-border px-3 lg:px-4">
+          <Link href="/" aria-label="OPUS67 home">
+            <span className="hidden lg:block">
+              <OpusLogo variant="wordmark" />
+            </span>
+            <span className="lg:hidden">
+              <OpusLogo variant="monogram" />
+            </span>
+          </Link>
+        </div>
+        <SpectralLine />
+        <div className="py-3">
+          <span className="hidden lg:block">
+            <NavList compact={false} />
           </span>
+          <span className="lg:hidden">
+            <NavList compact={true} />
+          </span>
+        </div>
+        <div className="mt-auto hidden lg:block">{footer}</div>
+        <div className="mt-auto flex justify-center border-t border-opus-border py-3 lg:hidden">
           <ThemeToggle />
         </div>
-      </aside>
+      </nav>
 
-      {/* Main column */}
-      <div className="flex min-w-0 flex-1 flex-col pt-14 md:pt-0">
-        <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Content column */}
+      <div className="flex min-h-screen flex-col md:pl-16 lg:pl-60">
+        <div className="hidden items-center justify-end gap-3 border-b border-opus-border px-6 py-2 md:flex">
+          <p className="mr-auto font-mono text-[10px] uppercase tracking-[0.24em] text-opus-muted">
+            AI Systems Platform · MVP
+          </p>
+          <span className="hidden lg:inline">
+            <ThemeToggle />
+          </span>
+        </div>
+        <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:py-10">
           {children}
         </main>
-        <footer className="border-t border-line py-5">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-            <p>
-              <span className="font-mono tracking-widest">
-                <span className="text-ice">OPUS</span>
-                <span className="text-chartreuse">67</span>
-              </span>{" "}
-              — AI Systems Platform
-            </p>
-            <p>
-              <Link href="/legal/ai" className="hover:text-steel hover:underline">
-                AI Legal Notice
-              </Link>{" "}
-              · Evidence · Traceability · Governance
-            </p>
-          </div>
+        <footer className="border-t border-opus-border px-6 py-4 md:hidden">
+          <p className="text-[11px] text-opus-muted">
+            <span className="font-mono tracking-widest text-opus-steel">OPUS67</span> — modular AI
+            systems platform.{" "}
+            <Link href="/legal/ai" className="hover:text-opus-steel hover:underline">
+              AI Legal Notice
+            </Link>
+          </p>
         </footer>
       </div>
     </div>

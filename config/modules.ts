@@ -18,6 +18,23 @@ export interface ModuleDescriptor {
   statusNote: string;
 }
 
+/**
+ * Secondary chromatic identity per module (OPUS67 Spectral System).
+ * Token names only — resolved through CSS variables in components.
+ */
+export const MODULE_ACCENTS = {
+  projects: "var(--opus-chartreuse)",
+  agents: "var(--opus-ultraviolet)",
+  tools: "var(--opus-cyan)",
+  workflows: "var(--opus-cyan)",
+  evidence: "var(--opus-cyan)",
+  governance: "var(--opus-amber)",
+  settings: "var(--opus-steel)",
+  dashboard: "var(--opus-chartreuse)",
+} as const;
+
+export type ModuleSlug = keyof typeof MODULE_ACCENTS;
+
 export const MODULES: ModuleDescriptor[] = [
   {
     slug: "dashboard",
